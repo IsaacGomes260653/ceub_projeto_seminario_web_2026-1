@@ -25,6 +25,20 @@ describe("página da peça", () => {
     expect(screen.getByLabelText("Categoria")).toHaveValue("Calças jeans");
   });
 
+  it("mostra a água e o carbono poupados quando a categoria tem estimativa", async () => {
+    abrir({ rota: "/catalogo/1", como: "ana" });
+    const bloco = (await screen.findByRole("heading", { name: "O que esta volta poupa" })).closest("section");
+    expect(within(bloco).getByText("2.911 L")).toBeInTheDocument();
+    expect(within(bloco).getByText("21,0 kg")).toBeInTheDocument();
+    expect(within(bloco).getByText(/calça 501/)).toBeInTheDocument();
+  });
+
+  it("não inventa número para categoria sem estimativa", async () => {
+    abrir({ rota: "/catalogo/2", como: "ana", preparar: (banco) => { banco.pecas[1].categoria = "Calçados"; } });
+    await screen.findByRole("heading", { name: "Vestido midi floral" });
+    expect(screen.queryByRole("heading", { name: "O que esta volta poupa" })).toBeNull();
+  });
+
   it("mostra a peça sem foto e a primeira volta", async () => {
     abrir({ rota: "/catalogo/2", como: "ana", preparar: (banco) => { banco.pecas[1].voltas = 1; } });
     expect(await screen.findByRole("heading", { name: "Vestido midi floral" })).toBeInTheDocument();

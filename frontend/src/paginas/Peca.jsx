@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { api } from "../api.js";
 import { carregar3D, MODELOS } from "../arara.js";
+import { impactoDe } from "../impacto.js";
 import { brl } from "../menu.js";
 
 // Página de uma peça. As peças de cima giram em 3D quando o aparelho permite; as demais mostram a foto.
@@ -47,6 +48,7 @@ export function Peca() {
   }
   if (!peca) return <p role="status">Carregando…</p>;
 
+  const impacto = impactoDe(peca.categoria);
   const detalhes = [["Marca", peca.marca], ["Tamanho", peca.tamanho], ["Categoria", peca.categoria], ["Conservação", peca.conservacao]].filter(([, v]) => v);
   return (
     <article className="peca-pagina" aria-labelledby="peca-titulo">
@@ -63,6 +65,16 @@ export function Peca() {
           <h1 id="peca-titulo" className="titulo">{peca.titulo}</h1>
           <p className="peca-preco"><strong>{brl(peca.preco)}</strong> <span className={`situacao ${peca.situacao === "Disponível" ? "ok" : ""}`}>{peca.situacao}</span></p>
           <p className="peca-voltas"><strong>{peca.voltas}ª volta.</strong> {peca.voltas > 1 ? `Esta peça já passou por ${peca.voltas - 1} ${peca.voltas === 2 ? "armário" : "armários"} antes de chegar aqui.` : "Esta peça está na primeira volta pelo brechó."}</p>
+          {impacto && (
+            <section className="peca-impacto" aria-labelledby="impacto-titulo">
+              <h2 id="impacto-titulo">O que esta volta poupa</h2>
+              <dl>
+                <div><dt>Água</dt><dd>{impacto.agua}</dd></div>
+                <div><dt>Carbono</dt><dd>{impacto.co2}</dd></div>
+              </dl>
+              <p>{impacto.fonte}</p>
+            </section>
+          )}
           <dl className="peca-dados">
             {detalhes.map(([rotulo, valor]) => <div key={rotulo}><dt>{rotulo}</dt><dd>{valor}</dd></div>)}
           </dl>

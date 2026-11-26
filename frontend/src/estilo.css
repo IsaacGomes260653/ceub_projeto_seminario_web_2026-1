@@ -34,6 +34,8 @@
 }
 
 html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+html, body { overflow-x: clip; }
+.min-h-screen { min-height: 100dvh; }
 :root { --sai: cubic-bezier(0.23, 1, 0.32, 1); --sombra-1: 0 1px 2px rgba(67,5,78,.08), 0 10px 22px -12px rgba(67,5,78,.3); --borda: rgba(67,5,78,.16); }
 a, button, input, select, label, summary { touch-action: manipulation; }
 body { margin: 0; font-family: "Hanken Grotesk", system-ui, sans-serif; color: var(--ceub-tinta); background: #fff; line-height: 1.5; }
@@ -142,8 +144,7 @@ header.bg-ceub-escuro { border-bottom: 4px solid transparent; border-image: line
 @keyframes surgir { from { opacity: 0; transform: translateY(8px); } }
 @keyframes aparecer { from { opacity: 0; } }
 @keyframes brilho { to { background-position: -200% 0; } }
-.pagina { animation: aparecer .18s ease-out both; }
-.card.peca.entra { animation: surgir .3s var(--sai) both; animation-delay: calc(min(var(--i, 0), 11) * 40ms); }
+.card.peca.entra { animation: surgir .24s var(--sai) both; animation-delay: var(--espera, 0ms); }
 .painel.abre { animation: surgir .22s var(--sai) both; transform-origin: top center; }
 .aviso:not(:empty), .erro-geral, .erro { animation: aparecer .2s ease-out both; }
 .arara { animation: aparecer .4s ease-out both; }
@@ -206,3 +207,22 @@ header.bg-ceub-escuro { border-bottom: 4px solid transparent; border-image: line
 .peca-dados dt { font-size: .82rem; color: var(--ceub-cinza); font-weight: 600; }
 .peca-dados dd { margin: 2px 0 0; font-weight: 600; }
 @media (prefers-reduced-motion: reduce) { .peca-info { animation-name: aparecer; } }
+
+/* ---------- o que esta volta poupa */
+.peca-impacto { margin: 16px 0 0; padding: 16px; border: 1.5px solid var(--borda); border-radius: 12px; }
+.peca-impacto h2 { margin: 0 0 10px; font: 700 1rem/1.2 "Bricolage Grotesque", sans-serif; color: var(--ceub-escuro); }
+.peca-impacto dl { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.peca-impacto dt { font-size: .82rem; color: var(--ceub-cinza); font-weight: 600; }
+.peca-impacto dd { margin: 0; font: 800 1.6rem/1.1 "Bricolage Grotesque", sans-serif; color: var(--ceub-roxo); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.peca-impacto p { margin: 10px 0 0; font-size: .8rem; line-height: 1.45; color: var(--ceub-cinza); }
+
+/* ---------- conteúdo real no pior caso: nada vaza, nada amassa, botão não quebra linha */
+.btn, .botao-menu, .item-menu, .voltar, .situacao, .voltas { white-space: nowrap; }
+.peca .nome, .peca .card-content p, .peca-info .titulo, .peca-dados dd, .demo span { overflow-wrap: anywhere; min-width: 0; }
+.tabela-rolavel td { max-width: 34ch; overflow-wrap: break-word; }
+.tabela-rolavel th { white-space: nowrap; }
+.peca .nome { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.peca .card-content p:last-child { gap: 6px 8px; }
+.peca .situacao, .peca .voltas, .peca-preco .situacao { flex: none; }
+header .text-sm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 22ch; }
+.tabela-rolavel .acoes .btn { flex: none; }

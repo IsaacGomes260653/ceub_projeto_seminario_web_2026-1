@@ -4,9 +4,14 @@ import { api } from "../api.js";
 import { brl, CATEGORIAS } from "../menu.js";
 import { Arara } from "../componentes/Arara.jsx";
 
+// Entrada dos cartões: intervalos que diminuem, só nos primeiros, e tudo termina em cerca de 300 ms.
+const ESPERAS = [0, 45, 85, 120, 150, 175, 195, 210];
+
 export function Catalogo() {
   const [pecas, setPecas] = useState(null);
   const [erro, setErro] = useState("");
+  // Foto que não carrega vira "sem foto", em vez do ícone de imagem quebrada.
+  const [semImagem, setSemImagem] = useState({});
   // Busca e categoria ficam na URL: o link pode ser compartilhado e o botão Voltar funciona.
   const [params, setParams] = useSearchParams();
   const q = params.get("q") || "";
@@ -76,9 +81,11 @@ export function Catalogo() {
       )}
       <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 list-none p-0 m-0">
         {(pecas || []).map((p, i) => (
-          <li key={p.id} className="card peca entra m-0" style={{ "--i": i }}>
+          <li key={p.id} className="card peca entra m-0" style={{ "--espera": `${ESPERAS[Math.min(i, ESPERAS.length - 1)]}ms` }}>
             <div className="card-image foto">
-              {p.foto ? <img src={`/fotos/${p.foto}`} alt="" loading={i < 4 ? "eager" : "lazy"} decoding="async" width="480" height="600" /> : <span aria-hidden="true" className="sem-foto">sem foto</span>}
+              {p.foto && !semImagem[p.id]
+                ? <img src={`/fotos/${p.foto}`} alt="" loading={i < 4 ? "eager" : "lazy"} decoding="async" width="480" height="600" onError={() => setSemImagem((m) => ({ ...m, [p.id]: true }))} />
+                : <span aria-hidden="true" className="sem-foto">sem foto</span>}
               <span className="voltas">{p.voltas}ª volta</span>
             </div>
             <div className="card-content">

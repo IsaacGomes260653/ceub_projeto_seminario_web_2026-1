@@ -38,7 +38,7 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      <main id="conteudo" tabIndex="-1" className="mx-auto w-full max-w-6xl px-4 py-8 flex-1"><div key={pathname} className="pagina"><Outlet /></div></main>
+      <main id="conteudo" tabIndex="-1" className="mx-auto w-full max-w-6xl px-4 py-8 flex-1"><Outlet /></main>
       <footer className="border-t border-ceub-linha">
         <p className="mx-auto max-w-6xl px-4 py-5 m-0 text-sm text-ceub-cinza">Ciranda · projeto de Desenvolvimento Web, CEUB 2026. Sistema acadêmico, sem vendas reais.</p>
       </footer>

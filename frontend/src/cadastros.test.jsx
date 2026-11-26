@@ -204,6 +204,13 @@ describe("catálogo", () => {
     expect(await screen.findByText("2 peças encontradas")).toBeInTheDocument();
     expect(screen.getByLabelText("Categoria")).toHaveValue("");
   });
+  it("troca a foto que não carrega por um aviso, sem ícone de imagem quebrada", async () => {
+    const { container } = abrir({ rota: "/catalogo", como: "ana" });
+    await screen.findByText("2 peças encontradas");
+    expect(screen.getAllByText("sem foto")).toHaveLength(1);
+    fireEvent.error(container.querySelector(".peca img"));
+    expect(screen.getAllByText("sem foto")).toHaveLength(2);
+  });
   it("mostra um convite quando o catálogo não tem peça nenhuma", async () => {
     abrir({ rota: "/catalogo", como: "ana", preparar: (banco) => { banco.pecas.length = 0; } });
     expect(await screen.findByText("O catálogo ainda está vazio")).toBeInTheDocument();
