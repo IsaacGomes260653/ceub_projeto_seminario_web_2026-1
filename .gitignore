@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.local
+*.sqlite
+*.sqlite-*
+dados/
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+.DS_Store

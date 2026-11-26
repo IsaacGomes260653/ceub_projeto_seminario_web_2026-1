@@ -1,0 +1,4 @@
+[
+  { "id": 1, "titulo": "Jaqueta de teste", "marca": "Fixture", "tamanho": "M", "categoria": "Jaquetas e casacos", "conservacao": "Ótimo estado", "preco": 150, "voltas": 4, "foto": "jaqueta-jeans.webp", "situacao": "Disponível" },
+  { "id": 2, "titulo": "Bolsa de teste", "marca": "Fixture", "tamanho": "", "categoria": "Bolsas e acessórios", "conservacao": "Bom estado", "preco": 80.5, "voltas": 1, "foto": "", "situacao": "Vendida" }
+]

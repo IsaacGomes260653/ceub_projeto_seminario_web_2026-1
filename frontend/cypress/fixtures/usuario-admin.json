@@ -1,0 +1,2 @@
+{ "usuario": { "id": 1, "nome": "Lúcia Andrade", "email": "lucia@ciranda.app", "perfilId": 1, "perfil": "Administradora",
+  "funcionalidades": ["catalogo.ver", "pecas.gerenciar", "usuarios.gerenciar", "perfis.gerenciar", "funcionalidades.gerenciar"] } }

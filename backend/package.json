@@ -1,0 +1,27 @@
+{
+  "name": "ciranda-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API do Ciranda: usuários, perfis, funcionalidades e peças",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "test": "vitest run --coverage",
+    "start:e2e": "LIMITE_LOGIN_POR_MINUTO=1000 LIMITE_POR_MINUTO=5000 BANCO=:memory: node src/server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.7.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.1.8",
+    "supertest": "^7.0.0",
+    "vitest": "^2.1.8"
+  }
+}
