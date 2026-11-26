@@ -14,3 +14,10 @@ Cypress.Commands.add("entrarSimulado", (fixtureDoUsuario = "usuario-admin.json")
 });
 
 Cypress.Commands.add("linha", (nome) => cy.contains("th[scope=row]", nome).parent("tr"));
+
+// O pacote 3D da arara pesa na máquina do CI, que não tem placa de vídeo, e deixa os testes lentos.
+// Por padrão ele é trocado por um script vazio: o site se comporta como em um aparelho sem WebGL.
+// A integração com a arara é testada com um dublê em 03-simulado.cy.js.
+beforeEach(() => {
+  cy.intercept("GET", "/arara3d/ciranda3d.js", { headers: { "content-type": "application/javascript" }, body: "" });
+});
