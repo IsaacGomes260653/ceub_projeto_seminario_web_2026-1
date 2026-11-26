@@ -13,7 +13,7 @@ export function Layout() {
   return (
     <div className="min-h-screen flex flex-col">
       <a className="pular" href="#conteudo">Pular para o conteúdo</a>
-      <header className="bg-ceub-roxo text-white">
+      <header className="bg-ceub-escuro text-white">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center gap-4">
           <NavLink to="/" aria-label="Ciranda, início" className="shrink-0"><Logo claro tamanho={28} /></NavLink>
           <button type="button" className="botao-menu md:hidden ml-auto" aria-expanded={aberto} aria-controls="menu-principal" onClick={() => setAberto((a) => !a)}>

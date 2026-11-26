@@ -95,3 +95,32 @@ describe("celular e teclado", () => {
     });
   });
 });
+
+// O pacote 3D é trocado por um dublê (stub), para o teste não depender de placa de vídeo.
+describe("arara 3D", () => {
+  const visitar = (ciranda3D) => {
+    cy.intercept("GET", "/api/auth/eu", { fixture: "usuario-cliente.json" });
+    cy.intercept("GET", "/api/pecas*", { fixture: "pecas.json" });
+    cy.visit("/", { onBeforeLoad: (win) => { win.sessionStorage.setItem("ciranda.token", "token-simulado"); win.Ciranda3D = ciranda3D; } });
+  };
+
+  it("pendura só as peças com modelo 3D e destaca na lista a que foi escolhida", () => {
+    const arara = cy.stub().returns(() => {}).as("arara");
+    visitar({ disponivel: () => true, arara });
+    cy.get("section[aria-label='Arara 3D']").should("contain", "1 peça gira aqui");
+    cy.get("@arara").should("have.been.calledOnce").then((stub) => {
+      const [, itens, escolher] = stub.firstCall.args;
+      expect(itens).to.have.length(1);
+      expect(itens[0]).to.include({ kind: "crewneck", colour: "#5C7894" });
+      expect(itens[0].name).to.contain("Jaqueta de teste");
+      escolher(0);
+    });
+    cy.contains(".peca", "Jaqueta de teste").should("have.class", "destaque").and("have.focus");
+  });
+
+  it("sem WebGL a arara some e o catálogo continua inteiro", () => {
+    visitar({ disponivel: () => false });
+    cy.contains("[role=status]", "2 peças encontradas");
+    cy.get("section[aria-label='Arara 3D']").should("not.exist");
+  });
+});

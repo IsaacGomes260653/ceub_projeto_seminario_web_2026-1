@@ -25,7 +25,7 @@ export function Login() {
 
   return (
     <div className="min-h-screen grid md:grid-cols-2">
-      <section className="bg-ceub-roxo text-white p-8 md:p-14 flex flex-col justify-between gap-10">
+      <section className="bg-ceub-escuro text-white p-8 md:p-14 flex flex-col justify-between gap-10">
         <Logo claro tamanho={34} />
         <div>
           <h1 className="font-titulo font-extrabold text-4xl md:text-5xl leading-none m-0" style={{ letterSpacing: "-0.035em" }}>Roupa boa não acaba. Ela dá voltas.</h1>
@@ -49,7 +49,7 @@ export function Login() {
             {erro && <p id="login-erro" className="erro-geral mt-4" role="alert">{erro}</p>}
             <button type="submit" className="btn filled w-full mt-6" disabled={enviando}>{enviando ? "Entrando" : "Entrar"}</button>
           </form>
-          <h3 className="subtitulo mt-10">Contas de demonstração</h3>
+          <h3 className="subtitulo" style={{ marginTop: "2.5rem" }}>Contas de demonstração</h3>
           <p className="ajuda">Senha de todas: ciranda123. Toque em uma para preencher.</p>
           <ul className="list-none p-0 m-0">
             {DEMOS.map(([e, perfil, oQue]) => (

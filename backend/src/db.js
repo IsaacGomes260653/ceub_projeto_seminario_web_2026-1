@@ -72,6 +72,11 @@ const PECAS_BASE = [
   ["Camiseta básica orgânica", "Insecta", "G", "Camisetas e blusas", "Ótimo estado", 24.9, 1, "camiseta-verde.webp"],
   ["Moletom Clube da Roda", "Redley", "G", "Camisetas e blusas", "Bom estado", 79.9, 3, "moletom-clube.webp"],
   ["Tênis de lona branco", "Vert", "38", "Calçados", "Bom estado", 99.9, 2, "tenis-lona.webp"],
+  ["Camiseta branca de bolso", "Osklen", "M", "Camisetas e blusas", "Ótimo estado", 59.9, 1, "camiseta-bolso.webp"],
+  ["Camisa estampada de viscose", "Foxton", "M", "Camisas", "Ótimo estado", 84.9, 2, "camisa-estampada.webp"],
+  ["Blusa de tricô canelado", "Renner", "P", "Camisetas e blusas", "Ótimo estado", 54.9, 4, "trico-caramelo.webp"],
+  ["Camiseta Flor de Maio", "Farm", "M", "Camisetas e blusas", "Bom estado", 44.9, 2, "camiseta-flor.webp"],
+  ["Camiseta preta lisa", "Basico.com", "P", "Camisetas e blusas", "Ótimo estado", 29.9, 1, "camiseta-preta.webp"],
 ];
 
 export const SENHA_DEMO = "ciranda123";

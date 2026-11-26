@@ -143,7 +143,7 @@ describe("peças do brechó", () => {
 
   it("lista e filtra por texto, categoria e situação", async () => {
     const ana = await ctx.entrar("ana@ciranda.app");
-    expect((await ctx.api("get", "/api/pecas", ana)).body).toHaveLength(8);
+    expect((await ctx.api("get", "/api/pecas", ana)).body).toHaveLength(13);
     expect((await ctx.api("get", "/api/pecas?q=jeans", ana)).body).toHaveLength(2);
     expect((await ctx.api("get", "/api/pecas?categoria=Vestidos&situacao=Disponível", ana)).body).toHaveLength(1);
     expect((await ctx.api("get", "/api/pecas?categoria=Inexistente", ana)).status).toBe(400);

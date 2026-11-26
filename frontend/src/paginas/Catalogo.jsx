@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
 import { brl, CATEGORIAS } from "../menu.js";
+import { Arara } from "../componentes/Arara.jsx";
 
 export function Catalogo() {
   const [pecas, setPecas] = useState(null);
@@ -16,10 +17,19 @@ export function Catalogo() {
     return () => clearTimeout(espera);
   }, [q, categoria]);
 
+  // A peça escolhida na arara ganha destaque na lista, e o foco vai até ela.
+  const [destaque, setDestaque] = useState(null);
+  const escolher = (peca) => {
+    setDestaque(peca.id);
+    const cartao = document.getElementById(`peca-${peca.id}`);
+    if (cartao) { cartao.scrollIntoView?.({ behavior: "smooth", block: "center" }); cartao.focus({ preventScroll: true }); }
+  };
+
   return (
     <section aria-labelledby="catalogo-titulo">
       <h1 id="catalogo-titulo" className="titulo">Catálogo</h1>
       <p className="mt-0 text-ceub-cinza">Peças únicas, cada uma com o número de voltas que já deu.</p>
+      <Arara pecas={pecas} aoEscolher={escolher} />
       <form className="painel grid sm:grid-cols-[1fr_16rem] gap-4 mb-6" role="search" aria-label="Buscar peças" onSubmit={(e) => e.preventDefault()}>
         <div className="campo">
           <label htmlFor="busca">Buscar por peça ou marca</label>
@@ -37,7 +47,7 @@ export function Catalogo() {
       <p role="status" aria-live="polite" className="text-sm text-ceub-cinza">{pecas === null ? "Carregando" : `${pecas.length} ${pecas.length === 1 ? "peça encontrada" : "peças encontradas"}`}</p>
       <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 list-none p-0 m-0">
         {(pecas || []).map((p) => (
-          <li key={p.id} className="card peca m-0">
+          <li key={p.id} id={`peca-${p.id}`} tabIndex="-1" className={`card peca m-0 ${destaque === p.id ? "destaque" : ""}`}>
             <div className="card-image foto">
               {p.foto ? <img src={`/fotos/${p.foto}`} alt="" loading="lazy" width="480" height="600" /> : <span aria-hidden="true" className="sem-foto">sem foto</span>}
               <span className="voltas">{p.voltas}ª volta</span>

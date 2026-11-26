@@ -6,7 +6,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        ceub: { roxo: "#4B0E82", escuro: "#2E0854", magenta: "#C2006B", lilas: "#F3EAFB", tinta: "#1A1122", cinza: "#5E5568", linha: "#D9CFE4" },
+        ceub: { roxo: "#662C92", escuro: "#43054E", magenta: "#BF0087", lilas: "#F3EAFB", rosa: "#EC0089", amarelo: "#FDE100", tinta: "#1A1122", cinza: "#5E5568", linha: "#D9CFE4" },
       },
       fontFamily: {
         titulo: ['"Bricolage Grotesque"', '"Hanken Grotesk"', "system-ui", "sans-serif"],

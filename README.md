@@ -11,13 +11,13 @@ Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A
 | Back-end separado no diretório | `backend/` (Node, Express, SQLite) |
 | Front-end com framework à escolha | `frontend/` (React com Vite) |
 | Tailwind CSS e Materialize | `frontend/tailwind.config.js` e `frontend/src/estilo.css` |
-| Identidade visual do CEUB | Paleta roxo e magenta em `frontend/tailwind.config.js` |
+| Identidade visual do CEUB | Paleta oficial da Central da Marca em `frontend/tailwind.config.js` |
 | CRUD 01: Usuário | `backend/src/rotas/usuarios.js` e tela Usuários |
 | CRUD 02: Perfil | `backend/src/rotas/perfis.js` e tela Perfis |
 | CRUD 03: Funcionalidades | `backend/src/rotas/funcionalidades.js` e tela Funcionalidades |
 | Cobertura de testes de 80% | Limite de 80% configurado nos dois `vitest.config`; o CI falha abaixo disso |
-| Cypress | `frontend/cypress/e2e/` (19 testes de ponta a ponta) |
-| Mock, fixture e fake | Mock em `frontend/src/api.test.js`, fixtures em `frontend/cypress/fixtures/`, fake em `frontend/src/teste/apiFalsa.js` |
+| Cypress | `frontend/cypress/e2e/` (21 testes de ponta a ponta) |
+| Mock, fixture, fake e stub | Mock em `frontend/src/api.test.js`, fixtures em `frontend/cypress/fixtures/`, fake em `frontend/src/teste/apiFalsa.js`, stub da arara em `frontend/cypress/e2e/03-simulado.cy.js` |
 | GitHub Actions (CI/CD) | `.github/workflows/ci.yml` |
 | Mobile | Layout responsivo, testado em 390 px no Cypress |
 | Acessibilidade | Rótulos, foco visível, link de pular ao conteúdo, avisos com `role=status` e `role=alert` |
@@ -28,6 +28,12 @@ Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A
 | Firewall de camada 7 e WAF | Filtro de requisições e limite de taxa em `backend/src/seguranca.js` (ver observações) |
 
 Além dos três cadastros pedidos, há um quarto, de peças, que alimenta o catálogo.
+
+## A arara 3D
+
+No topo do catálogo, as peças de cima (camiseta, camisa, moletom e jaqueta) ficam penduradas em uma arara 3D que gira com o mouse ou o dedo. Escolher uma peça leva até o cartão dela na lista. O pacote 3D só é baixado quando o catálogo abre, e em aparelho sem WebGL a arara some e a lista continua inteira, então nada depende dela para funcionar.
+
+O código que liga a arara ao catálogo está em `frontend/src/arara.js` e `frontend/src/componentes/Arara.jsx`. O pacote compilado fica em `frontend/public/arara3d/`.
 
 ## Como o acesso funciona
 
@@ -61,11 +67,11 @@ npm run dev
 
 ```bash
 cd backend && npm test          # 46 testes, com relatório de cobertura
-cd frontend && npm test         # 37 testes, com relatório de cobertura
+cd frontend && npm test         # 48 testes, com relatório de cobertura
 cd frontend && npm run build && npm run e2e   # sobe API e site e roda o Cypress
 ```
 
-Cobertura medida na última execução: back-end 99,6% das linhas e front-end 100% das linhas. O relatório detalhado fica em `coverage/index.html` de cada pasta.
+Cobertura medida na última execução: back-end 99,6% das linhas e front-end 99,3% das linhas. O relatório detalhado fica em `coverage/index.html` de cada pasta.
 
 Os testes usam três tipos de dublê:
 
@@ -88,7 +94,8 @@ Observações honestas:
 
 1. O filtro de requisições é uma proteção dentro da aplicação. Um WAF de verdade fica na frente do servidor (Cloudflare, AWS WAF, Vercel Firewall). Em produção, os dois andam juntos.
 2. Chave de API em um site que roda no navegador não é segredo, porque qualquer pessoa consegue ler. Ela identifica o cliente autorizado; quem protege os dados é o token.
-3. As cores seguem a identidade do CEUB por aproximação, sem uso do logotipo da instituição.
+3. As cores são as da Central da Marca do CEUB (roxo escuro `#43054E`, roxo `#662C92`, lilás `#BF0087`, magenta `#EC0089` e amarelo `#FDE100`). O logotipo da instituição não é usado.
+4. A arara e os modelos de camiseta, moletom e camisa vêm do componente Clothes Rack, de DiMaac UI. A página do componente não informa a licença, então o repositório traz só o pacote compilado, sem o código-fonte dele.
 
 ## Estrutura
 
