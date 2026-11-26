@@ -37,6 +37,8 @@ Além dos três cadastros pedidos, há um quarto, de peças, que alimenta o cat�
 
 No topo do catálogo, as peças de cima (camiseta, camisa, moletom e jaqueta) ficam penduradas em uma arara 3D que gira com o mouse ou o dedo. Escolher uma peça leva até o cartão dela na lista. O pacote 3D só é baixado quando o catálogo abre, e em aparelho sem WebGL a arara some e a lista continua inteira, então nada depende dela para funcionar.
 
+Cada tecido tem a sua trama: malha nas camisetas e moletons, tela no linho das camisas e sarja no jeans das jaquetas. O pano atrasa, balança e assenta quando a peça gira.
+
 O código que liga a arara ao catálogo está em `frontend/src/arara.js` e `frontend/src/componentes/Arara.jsx`. O pacote compilado fica em `frontend/public/arara3d/`.
 
 ## Como o acesso funciona
@@ -71,11 +73,11 @@ npm run dev
 
 ```bash
 cd backend && npm test          # 47 testes, com relatório de cobertura
-cd frontend && npm test         # 48 testes, com relatório de cobertura
+cd frontend && npm test         # 51 testes, com relatório de cobertura
 cd frontend && npm run build && npm run e2e   # sobe API e site e roda o Cypress
 ```
 
-Cobertura medida na última execução: back-end 99,6% das linhas e front-end 99,3% das linhas. O relatório detalhado fica em `coverage/index.html` de cada pasta.
+Cobertura medida na última execução: back-end 99,6% das linhas e front-end 99,4% das linhas. O relatório detalhado fica em `coverage/index.html` de cada pasta.
 
 Os testes usam três tipos de dublê:
 

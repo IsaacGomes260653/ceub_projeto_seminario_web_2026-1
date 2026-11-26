@@ -32,7 +32,7 @@ function Inicio() {
 
 export function App() {
   const { carregando } = useSessao();
-  if (carregando) return <p className="p-8" role="status">Carregando</p>;
+  if (carregando) return <p className="p-8" role="status">Carregando…</p>;
   return (
     <Routes>
       <Route path="/entrar" element={<Login />} />

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { MENU } from "../menu.js";
 import { useSessao } from "../sessao.jsx";
 import { Logo } from "./Logo.jsx";
@@ -9,6 +9,12 @@ export function Layout() {
   const [aberto, setAberto] = useState(false);
   const itens = MENU.filter((i) => pode(i.exige));
   const classe = ({ isActive }) => `item-menu ${isActive ? "ativo" : ""}`;
+  const { pathname } = useLocation();
+  // O título da aba acompanha a página, para o histórico e para quem usa leitor de tela.
+  useEffect(() => {
+    const atual = MENU.find((i) => pathname.startsWith(i.rota));
+    document.title = `${atual ? atual.rotulo : "Sem acesso"} · Ciranda`;
+  }, [pathname]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -32,7 +38,7 @@ export function Layout() {
           </nav>
         </div>
       </header>
-      <main id="conteudo" tabIndex="-1" className="mx-auto w-full max-w-6xl px-4 py-8 flex-1"><Outlet /></main>
+      <main id="conteudo" tabIndex="-1" className="mx-auto w-full max-w-6xl px-4 py-8 flex-1"><div key={pathname} className="pagina"><Outlet /></div></main>
       <footer className="border-t border-ceub-linha">
         <p className="mx-auto max-w-6xl px-4 py-5 m-0 text-sm text-ceub-cinza">Ciranda · projeto de Desenvolvimento Web, CEUB 2026. Sistema acadêmico, sem vendas reais.</p>
       </footer>

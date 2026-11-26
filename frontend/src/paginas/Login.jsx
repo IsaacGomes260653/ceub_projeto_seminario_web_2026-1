@@ -40,14 +40,14 @@ export function Login() {
           <form onSubmit={enviar} noValidate>
             <div className="campo">
               <label htmlFor="login-email">E-mail</label>
-              <input id="login-email" type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} aria-describedby={erro ? "login-erro" : undefined} />
+              <input id="login-email" name="email" type="email" inputMode="email" spellCheck={false} autoCapitalize="none" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} aria-describedby={erro ? "login-erro" : undefined} />
             </div>
             <div className="campo mt-4">
               <label htmlFor="login-senha">Senha</label>
-              <input id="login-senha" type="password" autoComplete="current-password" required value={senha} onChange={(e) => setSenha(e.target.value)} aria-describedby={erro ? "login-erro" : undefined} />
+              <input id="login-senha" name="senha" type="password" autoComplete="current-password" required value={senha} onChange={(e) => setSenha(e.target.value)} aria-describedby={erro ? "login-erro" : undefined} />
             </div>
             {erro && <p id="login-erro" className="erro-geral mt-4" role="alert">{erro}</p>}
-            <button type="submit" className="btn filled w-full mt-6" disabled={enviando}>{enviando ? "Entrando" : "Entrar"}</button>
+            <button type="submit" className="btn filled w-full mt-6" disabled={enviando}>{enviando ? "Entrando…" : "Entrar"}</button>
           </form>
           <h3 className="subtitulo" style={{ marginTop: "2.5rem" }}>Contas de demonstração</h3>
           <p className="ajuda">Senha de todas: ciranda123. Toque em uma para preencher.</p>

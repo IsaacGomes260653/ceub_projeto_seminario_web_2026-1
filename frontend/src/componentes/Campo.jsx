@@ -45,7 +45,8 @@ export function Campo({ campo, valor, erro, aoMudar, prefixo }) {
           {campo.opcoes.map((o) => <option key={o.valor} value={o.valor}>{o.rotulo}</option>)}
         </select>
       ) : (
-        <input {...comum} type={campo.tipo === "senha" ? "password" : campo.tipo === "numero" ? "number" : campo.tipo === "email" ? "email" : "text"}
+        <input {...comum} inputMode={campo.tipo === "numero" ? "decimal" : undefined} spellCheck={campo.tipo === "email" ? false : undefined}
+          type={campo.tipo === "senha" ? "password" : campo.tipo === "numero" ? "number" : campo.tipo === "email" ? "email" : "text"}
           value={valor} step={campo.passo} min={campo.min} maxLength={campo.max} autoComplete={campo.auto || "off"} onChange={(e) => aoMudar(e.target.value)} />
       )}
       {campo.ajuda && <p id={idAjuda} className="ajuda">{campo.ajuda}</p>}

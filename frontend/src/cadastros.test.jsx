@@ -33,6 +33,7 @@ describe("CRUD 01: usuários", () => {
     const nome = screen.getByLabelText(/Nome completo/);
     expect(nome).toHaveAttribute("aria-invalid", "true");
     expect(nome).toHaveAccessibleDescription("Campo obrigatório.");
+    await waitFor(() => expect(nome).toHaveFocus());
     expect(screen.getByLabelText(/Senha/)).toHaveAccessibleDescription(/Campo obrigatório/);
     expect(screen.getAllByRole("alert").length).toBeGreaterThanOrEqual(4);
   });
@@ -193,6 +194,28 @@ describe("catálogo", () => {
     await usuario.clear(screen.getByLabelText("Buscar por peça ou marca"));
     await usuario.selectOptions(screen.getByLabelText("Categoria"), "Saias");
     expect(await screen.findByText("0 peças encontradas")).toBeInTheDocument();
+  });
+  it("lê os filtros da URL, mostra o estado vazio e limpa os filtros", async () => {
+    const { usuario, falsa } = abrir({ rota: "/catalogo?q=nada-disso&categoria=Saias", como: "ana" });
+    expect(await screen.findByText("Nenhuma peça com esse filtro")).toBeInTheDocument();
+    expect(falsa.pedidos.at(-1).filtros).toEqual({ q: "nada-disso", categoria: "Saias" });
+    expect(screen.getByLabelText("Buscar por peça ou marca")).toHaveValue("nada-disso");
+    await usuario.click(screen.getByRole("button", { name: "Limpar filtros" }));
+    expect(await screen.findByText("2 peças encontradas")).toBeInTheDocument();
+    expect(screen.getByLabelText("Categoria")).toHaveValue("");
+  });
+  it("mostra um convite quando o catálogo não tem peça nenhuma", async () => {
+    abrir({ rota: "/catalogo", como: "ana", preparar: (banco) => { banco.pecas.length = 0; } });
+    expect(await screen.findByText("O catálogo ainda está vazio")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Limpar filtros" })).toBeNull();
+  });
+  it("põe o nome da página no título da aba", async () => {
+    const { usuario } = abrir({ rota: "/catalogo", como: "lucia" });
+    await screen.findByText("2 peças encontradas");
+    expect(document.title).toBe("Catálogo · Ciranda");
+    await usuario.click(screen.getByRole("link", { name: "Perfis" }));
+    await screen.findByRole("heading", { name: "Perfis", level: 1 });
+    expect(document.title).toBe("Perfis · Ciranda");
   });
   it("avisa quando a busca falha", async () => {
     const { falsa } = abrir({ rota: "/catalogo", como: "ana" });

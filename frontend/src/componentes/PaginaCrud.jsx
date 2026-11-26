@@ -41,6 +41,9 @@ export function PaginaCrud({ titulo, descricao, singular, recurso, colunas, camp
     } catch (erro) {
       setErros(erro.detalhes || {});
       setErroForm(erro.message);
+      // O foco vai para o primeiro campo com erro, depois que a tela redesenhar.
+      const primeiro = Object.keys(erro.detalhes || {})[0];
+      if (primeiro) setTimeout(() => document.getElementById(`${prefixo}-${primeiro}`)?.focus(), 0);
     } finally {
       setSalvando(false);
     }
@@ -71,7 +74,7 @@ export function PaginaCrud({ titulo, descricao, singular, recurso, colunas, camp
       <p className="aviso" role="status" aria-live="polite">{aviso}</p>
 
       {form && (
-        <form className="painel mb-8" onSubmit={salvar} noValidate aria-labelledby={`${prefixo}-form-titulo`}>
+        <form className="painel abre mb-8" onSubmit={salvar} noValidate aria-labelledby={`${prefixo}-form-titulo`}>
           <h2 id={`${prefixo}-form-titulo`} ref={tituloForm} tabIndex="-1" className="subtitulo">{form.id ? `Editar ${singular.toLowerCase()}` : novo}</h2>
           {erroForm && <p className="erro-geral" role="alert">{erroForm}</p>}
           <div className="grid md:grid-cols-2 gap-x-6 gap-y-4">
@@ -84,14 +87,14 @@ export function PaginaCrud({ titulo, descricao, singular, recurso, colunas, camp
             ))}
           </div>
           <div className="flex flex-wrap gap-3 mt-6">
-            <button type="submit" className="btn filled" disabled={salvando}>{salvando ? "Salvando" : "Salvar"}</button>
+            <button type="submit" className="btn filled" disabled={salvando}>{salvando ? "Salvando…" : "Salvar"}</button>
             <button type="button" className="btn outlined" onClick={fechar}>Cancelar</button>
           </div>
         </form>
       )}
 
       {erroLista && <p className="erro-geral" role="alert">{erroLista} <button type="button" className="btn-flat" onClick={carregar}>Tentar de novo</button></p>}
-      {itens === null ? <p role="status">Carregando</p> : itens.length === 0 && !erroLista ? (
+      {itens === null ? <p role="status">Carregando…</p> : itens.length === 0 && !erroLista ? (
         <p className="painel">Nada cadastrado ainda. Use o botão "{novo}" para começar.</p>
       ) : itens.length > 0 && (
         <div className="tabela-rolavel" role="region" aria-label={`Lista de ${titulo.toLowerCase()}`} tabIndex="0">
