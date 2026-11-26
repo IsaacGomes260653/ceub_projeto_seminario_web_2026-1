@@ -2,8 +2,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { montar } from "./apoio.js";
 
 let ctx, admin;
-beforeEach(async () => { ctx = montar(); admin = await ctx.entrar("lucia@ciranda.app"); });
-const idDe = (tabela, coluna, valor) => ctx.db.prepare(`SELECT id FROM ${tabela} WHERE ${coluna} = ?`).get(valor).id;
+beforeEach(async () => { ctx = await montar(); admin = await ctx.entrar("lucia@ciranda.app"); });
+const TABELA = { usuarios: "tbl_001_usuarios", perfis: "tbl_002_perfis", funcionalidades: "tbl_003_funcionalidades", pecas: "tbl_005_pecas" };
+const idDe = (tabela, coluna, valor) => ctx.db.prepare(`SELECT id FROM ${TABELA[tabela]} WHERE ${coluna} = ?`).get(valor).id;
 
 describe("CRUD 01: usuários", () => {
   const novo = () => ({ nome: "Thiago Villar", email: "thiago@ciranda.app", senha: "senha-forte-1", perfilId: idDe("perfis", "nome", "Cliente") });
@@ -34,7 +35,7 @@ describe("CRUD 01: usuários", () => {
     const { body } = await ctx.api("post", "/api/usuarios", admin).send(novo());
     const { senha, ...semSenha } = novo();
     await ctx.api("put", `/api/usuarios/${body.id}`, admin).send({ ...semSenha, ativo: false });
-    ctx.db.prepare("UPDATE usuarios SET ativo = 1 WHERE id = ?").run(body.id);
+    ctx.db.prepare("UPDATE tbl_001_usuarios SET ativo = 1 WHERE id = ?").run(body.id);
     expect(await ctx.entrar("thiago@ciranda.app", senha)).toEqual(expect.any(String));
   });
   it("valida campos, e-mail repetido e perfil inexistente", async () => {

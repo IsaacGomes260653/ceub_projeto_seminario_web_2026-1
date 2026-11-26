@@ -1,0 +1,8 @@
+node_modules/
+dist/
+pacote/
+coverage/
+dados/
+.env
+# Cliente do Prisma: é gerado por "prisma generate" a cada instalação, a partir de prisma/schema.prisma.
+src/banco/cliente/

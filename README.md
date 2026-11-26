@@ -21,6 +21,7 @@
   <a href="#trabalho-em-grupo">Trabalho em grupo</a> ·
   <a href="#demonstração">Demonstração</a> ·
   <a href="#o-que-ele-faz">O que ele faz</a> ·
+  <a href="#padrão-de-back-end-pedido-em-aula">Padrão de back-end</a> ·
   <a href="#stack">Stack</a> ·
   <a href="#como-rodar">Como rodar</a> ·
   <a href="#testes-e-qualidade">Testes</a> ·
@@ -91,38 +92,65 @@ Para ver tudo em cinco minutos: entre como Ana, abra uma peça, coloque na sacol
 
 **Segurança:**
 
-- **Chave de API:** toda rota de `/api` exige o cabeçalho `X-API-Key`, comparado em tempo constante. Num site que roda no navegador, essa chave identifica o cliente, mas não é segredo; quem protege os dados é o token.
-- **Tokens:** o login devolve um JWT assinado, válido por 30 minutos. A senha fica guardada com bcrypt.
+- **Chave de API:** toda rota de `/api` exige o cabeçalho `X-API-Key`, comparado em tempo constante (a exceção é `/api/saude`). Num site que roda no navegador, essa chave identifica o cliente, mas não é segredo; quem protege os dados é o token.
+- **Tokens:** o login devolve um JWT assinado, válido por 30 minutos, e grava um cookie `HttpOnly` de sessão, de uso único, que renova o JWT. A senha fica guardada com bcrypt.
+- **CSRF:** as rotas de dados não aceitam cookie. O cookie é `SameSite=Strict`, só vale em `/api/auth`, e requisição de origem fora da lista recebe 403.
 - **CORS:** só as origens em `CORS_ORIGENS` são aceitas.
 - **CSP:** a API responde com `default-src 'none'`, e o site restringe scripts, estilos, imagens e conexões à própria origem.
 - **Camada 7:** limite de requisições por minuto (mais apertado no login), corpo limitado a 100 kB e um filtro que recusa padrões conhecidos de ataque na URL e no corpo. Na Vercel, o firewall da borda tem ainda uma regra que nega caminhos típicos de varredura (`/.env`, `/.git`, `/wp-admin`).
-- **SQL:** todas as consultas usam parâmetros.
+- **SQL:** todo acesso ao banco passa pelo Prisma, que parametriza as consultas.
+
+## Padrão de back-end pedido em aula
+
+O professor pediu que o back-end siga estes itens e que o projeto tenha uma skill com eles. A skill está em [`.claude/skills/padrao-backend/SKILL.md`](.claude/skills/padrao-backend/SKILL.md), e cada item está no código:
+
+| Item | Como foi feito | Onde está |
+| --- | --- | --- |
+| **Framework: NestJS** | API em NestJS com TypeScript: módulo, controladores, serviços, guardas, interceptador e filtro de erros. | `backend/src/app.module.ts` |
+| **HTTP: métodos** | GET lê, POST cria ou executa ação, PUT substitui, DELETE remove. | Controladores em `backend/src/*/` |
+| **HTTP: status codes** | 200, 201, 204, 400, 401, 403, 404, 409, 413, 429 e 500, cada um com um sentido só. | `backend/src/comum/erros.ts` e `filtro-de-erros.ts` |
+| **HTTP: headers** | `X-API-Key`, `Authorization: Bearer`, cabeçalhos de segurança do helmet e de limite de taxa. | `backend/src/comum/seguranca.ts` |
+| **HTTP: cookies** | Cookie de sessão `HttpOnly`, `Secure`, `SameSite=Strict`, restrito a `/api/auth`. | `backend/src/auth/auth.controller.ts` |
+| **HTTP: CORS** | Lista de origens permitidas. Origem fora da lista recebe 403. | `corsRestrito` em `backend/src/comum/seguranca.ts` |
+| **APIs REST com Swagger** | Documentação gerada do código, com corpo, respostas e esquemas de segurança de cada rota. | https://ciranda-web.vercel.app/api/docs e `backend/src/app.ts` |
+| **ORM e migrations: Prisma** | Todo acesso ao banco pelo cliente do Prisma. Mudança de banco só por migration. | `backend/prisma/schema.prisma` e `backend/prisma/migrations/` |
+| **Padrão de tabelas** | `tbl` + número + nome: `tbl_001_usuarios` até `tbl_010_sessoes`. Um teste lê o banco e falha se alguma tabela fugir do padrão. | `backend/prisma/schema.prisma` e `backend/test/plataforma.test.js` |
+| **OWASP: SQL injection** | Consultas parametrizadas pelo Prisma. Nenhum valor de requisição é colado em SQL. | `backend/src/banco/prisma.service.ts` |
+| **OWASP: XSS** | API só devolve JSON com CSP `default-src 'none'`. O React escapa todo texto. Sessão longa em cookie `HttpOnly`. | `backend/src/comum/seguranca.ts` e `vercel.json` |
+| **OWASP: CSRF** | Rotas de dados pedem JWT no cabeçalho, não cookie. Cookie `SameSite=Strict`, origem conferida e cabeçalho `X-API-Key` obrigatório. | Testes "CSRF" em `backend/test/plataforma.test.js` |
+| **Hash de senhas** | bcrypt com custo 10. O hash nunca sai da API. | `backend/src/auth/auth.service.ts` e `backend/src/usuarios/usuarios.ts` |
+| **Criptografia** | JWT assinado com HMAC SHA-256. Token de sessão aleatório de 32 bytes, guardado no banco só como SHA-256. | `backend/src/auth/auth.service.ts` |
+| **HTTPS** | O site só responde por HTTPS, a API manda `Strict-Transport-Security` e o cookie sai com `Secure`. | `backend/src/comum/seguranca.ts` |
+| **Validação de entrada** | Todo corpo e toda consulta passam por regras de tipo, tamanho e formato. Campo fora da regra é descartado. | `backend/src/comum/validar.ts` |
+| **Gestão de segredos** | Segredos só em variável de ambiente. Em produção a API não sobe sem eles. | `backend/src/config.ts` e `backend/.env.example` |
+| **JWT com o front** | JWT de 30 minutos no cabeçalho `Authorization`, renovado pelo cookie de sessão sem a pessoa perceber. | `backend/src/comum/guardas.ts` e `frontend/src/api.js` |
 
 ## Stack
 
 | Parte | Tecnologias |
 | --- | --- |
-| Back-end (`backend/`) | Node 22.13 ou mais novo, Express 4, SQLite embutido do Node (`node:sqlite`), JWT (`jsonwebtoken`), bcryptjs, Helmet, `express-rate-limit` |
+| Back-end (`backend/`) | Node 22.13 ou mais novo, NestJS 12 com TypeScript, Prisma 7 com SQLite, Swagger, JWT (`jsonwebtoken`), bcryptjs, Helmet, `express-rate-limit` |
 | Front-end (`frontend/`) | React 18 com Vite 5, React Router 6, Tailwind CSS 3 e Materialize 2 |
 | Testes | Vitest com Supertest (API), Vitest com Testing Library (site) e Cypress 16 (de ponta a ponta) |
 | CI e publicação | GitHub Actions e Vercel, com o site e a API como dois serviços do mesmo projeto (`vercel.json`) |
 
-O banco tem nove tabelas: `usuarios`, `perfis`, `funcionalidades`, `perfil_funcionalidades`, `pecas`, `sacola_itens`, `pedidos`, `pedido_itens` e `pedido_eventos`. Ele é criado e preenchido com os dados de demonstração quando a API sobe.
+O banco tem dez tabelas no padrão `tbl_NNN_nome`, de `tbl_001_usuarios` a `tbl_010_sessoes`, definidas em `backend/prisma/schema.prisma` e criadas por migration. Quando a API sobe, ela aplica as migrations e grava os dados de demonstração. A documentação da API, gerada pelo Swagger, fica em https://ciranda-web.vercel.app/api/docs.
 
 As cores seguem a Central da Marca do CEUB; o logotipo da instituição não é usado. A arara e os modelos de camiseta, moletom e camisa vêm do componente Clothes Rack, de DiMaac UI. A página do componente não informa a licença, então o repositório traz só o pacote compilado (`frontend/public/arara3d/`), sem o código-fonte dele.
 
 ## Como rodar
 
-Precisa do Git e do Node 22.13 ou mais novo, porque a API usa o SQLite que já vem no Node.
+Precisa do Git e do Node 22.13 ou mais novo.
 
 ```bash
 git clone https://github.com/IsaacGomes260653/ceub_projeto_seminario_web_2026-1.git
 cd ceub_projeto_seminario_web_2026-1
 
-# terminal 1: API em http://localhost:3333
+# terminal 1: API em http://localhost:3333, documentação em http://localhost:3333/api/docs
 cd backend
-npm install
-npm run dev
+npm install        # também gera o cliente do Prisma
+npm run build
+npm start
 
 # terminal 2: site em http://localhost:5173
 cd frontend
@@ -133,18 +161,26 @@ npm run dev
 Abra <http://localhost:5173> e toque numa das contas de demonstração. Num clone limpo, a instalação das duas pastas levou cerca de 20 segundos (Windows 11 e Node 26).
 
 - Não precisa de `.env`: sem ele, a API usa a chave e o segredo de desenvolvimento, e o Vite manda o `/api` para a API local. Os modelos estão em `backend/.env.example` e `frontend/.env.example`.
-- Sem `.env`, o banco fica em memória e volta aos dados de demonstração toda vez que a API reinicia. Para gravar em disco, copie o `backend/.env.example` para `backend/.env`: ele aponta o banco para `./dados/ciranda.sqlite`.
+- Sem `.env`, a API sobe com um banco SQLite descartável, aplica as migrations e volta aos dados de demonstração toda vez que reinicia. Para guardar os dados em arquivo e usar os comandos do Prisma:
+
+  ```bash
+  cd backend
+  cp .env.example .env                     # ajuste BANCO=dados/ciranda.db
+  npm run migrar:producao                  # prisma migrate deploy: cria as tabelas
+  npm run migrar -- --name minha_mudanca   # prisma migrate dev: cria uma migration nova
+  npm run migracoes:empacotar              # atualiza o SQL que a API aplica no banco descartável
+  ```
 - O `npm install` do front-end baixa o Cypress, que é grande. Para só rodar o site, dá para pular esse download com `CYPRESS_INSTALL_BINARY=0 npm install`.
 
 ## Testes e qualidade
 
 ```bash
-cd backend && npm test                         # 73 testes, com relatório de cobertura
-cd frontend && npm test                        # 100 testes, com relatório de cobertura
+cd backend && npm test                         # 97 testes, com relatório de cobertura
+cd frontend && npm test                        # 105 testes, com relatório de cobertura
 cd frontend && npm run build && npm run e2e    # sobe API e site e roda o Cypress
 ```
 
-Rodei os dois primeiros e o build num clone limpo: 73 e 100 testes passando, com 99,8% das linhas cobertas no back-end e 100% no front-end. O limite de 80% está nos dois `vitest.config`, e a CI falha abaixo disso. O Cypress tem 29 testes em `frontend/cypress/e2e/`.
+Na última execução do grupo, os 97 e os 105 testes passaram, com 100% das linhas cobertas no back-end e no front-end. O limite de 80% está nos dois `vitest.config`, e a CI falha abaixo disso. O Cypress tem 30 testes em `frontend/cypress/e2e/`.
 
 Os testes usam quatro tipos de dublê:
 
@@ -153,19 +189,23 @@ Os testes usam quatro tipos de dublê:
 - **Fixture:** respostas prontas em JSON que o Cypress entrega no lugar do servidor (`frontend/cypress/fixtures/`).
 - **Stub:** a arara 3D trocada por um dublê no Cypress (`frontend/cypress/e2e/03-simulado.cy.js`).
 
-A cada push ou pull request, o GitHub Actions (`.github/workflows/ci.yml`) roda os testes do back-end, os testes e o build do front-end e, depois, o Cypress com a API e o site no ar.
+A cada push ou pull request, o GitHub Actions (`.github/workflows/ci.yml`) confere o esquema do Prisma, roda os testes e o build do back-end, os testes e o build do front-end e, depois, o Cypress com a API e o site no ar.
 
 ## Estrutura de pastas
 
 ```
 .
+├── .claude/
+│   └── skills/padrao-backend/  # skill com o padrão de back-end pedido em aula
 ├── backend/
+│   ├── prisma/             # esquema do banco (tabelas tbl_NNN_nome) e migrations
 │   ├── src/
-│   │   ├── app.js          # monta o Express: segurança, chave de API e rotas
-│   │   ├── db.js           # esquema do SQLite e dados de demonstração
-│   │   ├── auth.js         # JWT e checagem de funcionalidade por rota
-│   │   ├── seguranca.js    # CORS, CSP, limite de taxa e filtro de requisições
-│   │   └── rotas/          # usuários, perfis, funcionalidades, peças, sacola, pedidos...
+│   │   ├── app.module.ts   # módulo do NestJS com controladores e serviços
+│   │   ├── app.ts          # monta a API: segurança, chave de API e Swagger
+│   │   ├── auth/           # login, JWT e cookie de sessão
+│   │   ├── banco/          # serviço do Prisma, migrations e dados de demonstração
+│   │   ├── comum/          # CORS, CSP, limite de taxa, guardas, validação e erros
+│   │   └── usuarios/ ...   # usuários, perfis, funcionalidades, peças e a loja
 │   └── test/               # Vitest com Supertest
 ├── frontend/
 │   ├── src/
@@ -186,7 +226,8 @@ A cada push ou pull request, o GitHub Actions (`.github/workflows/ci.yml`) roda 
 
 - **Team:** Lucas Amaral Evangelista ([@lucasamarale](https://github.com/lucasamarale)), Eduardo Clemente Cantuario ([@Educlemente](https://github.com/Educlemente)), Bruno Rodrigues dos Santos ([@Brunobrs86](https://github.com/Brunobrs86)) and Isaac Gomes de Moraes ([@IsaacGomes260653](https://github.com/IsaacGomes260653)). Original repository: [lucasamarale/ceub_projeto_seminario_web_2026-1](https://github.com/lucasamarale/ceub_projeto_seminario_web_2026-1); this copy is published with the group's permission, with the full commit history and original authorship.
 - **What it does:** CRUD for users, profiles and features, where each profile's features decide what the menu shows and what the API allows; plus a cart that holds items for 30 minutes, simulated Pix payment, order tracking, consignment with a 60% payout, a back-office panel and a 3D clothes rack.
-- **Stack:** Express 4 with Node's built-in SQLite, JWT and an API key on the back end; React 18, Vite, Tailwind CSS and Materialize on the front end; Vitest, Supertest, Testing Library and Cypress; GitHub Actions and Vercel.
-- **Tests:** 73 back-end and 100 front-end tests (99.8% and 100% line coverage, 80% enforced in CI) and 29 Cypress end-to-end tests.
+- **Stack:** NestJS 12 with TypeScript, Prisma 7 with SQLite and migrations, Swagger, JWT with a refresh cookie and an API key on the back end; React 18, Vite, Tailwind CSS and Materialize on the front end; Vitest, Supertest, Testing Library and Cypress; GitHub Actions and Vercel.
+- **Tests:** 97 back-end and 105 front-end tests (100% line coverage on both, 80% enforced in CI) and 30 Cypress end-to-end tests.
+- **Back-end standard asked in class:** HTTP methods, status codes, headers, cookies and CORS, Swagger docs (<https://ciranda-web.vercel.app/api/docs>), Prisma migrations, `tbl_NNN_name` tables, OWASP (SQL injection, XSS, CSRF), password hashing, HTTPS, input validation and secrets in environment variables. The project skill is in `.claude/skills/padrao-backend/SKILL.md`.
 
-**Run it:** Node 22.13 or newer. Run `npm install` and `npm run dev` in `backend/` (API on port 3333) and again in `frontend/` (site on <http://localhost:5173>). No `.env` is needed for local development.
+**Run it:** Node 22.13 or newer. Run `npm install`, `npm run build` and `npm start` in `backend/` (API on port 3333, docs at `/api/docs`), then `npm install` and `npm run dev` in `frontend/` (site on <http://localhost:5173>). No `.env` is needed for local development.

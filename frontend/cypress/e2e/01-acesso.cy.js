@@ -43,4 +43,28 @@ describe("acesso e perfis", () => {
     cy.contains("h2", "Entrar");
     cy.window().then((w) => expect(w.sessionStorage.getItem("ciranda.token")).to.be.null);
   });
+
+  it("guarda a sessão em cookie HttpOnly, retoma em aba nova e encerra ao sair", () => {
+    cy.visit("/entrar");
+    cy.get("#login-email").type("ana@ciranda.app");
+    cy.get("#login-senha").type("ciranda123");
+    cy.contains("button", "Entrar").click();
+    cy.contains("h1", "Catálogo");
+    cy.getCookie("ciranda_sessao").should((c) => {
+      expect(c.httpOnly).to.equal(true);
+      expect(c.sameSite).to.equal("strict");
+      expect(c.path).to.equal("/api/auth");
+    });
+    // O JavaScript da página não enxerga o cookie.
+    cy.document().its("cookie").should("not.contain", "ciranda_sessao");
+    // Aba nova: sem o token da aba, a sessão volta pelo cookie.
+    cy.window().then((w) => w.sessionStorage.clear());
+    cy.reload();
+    cy.contains("h1", "Catálogo");
+    cy.contains("button", "Sair").click();
+    cy.contains("h2", "Entrar");
+    cy.getCookie("ciranda_sessao").should("not.exist");
+    cy.reload();
+    cy.contains("h2", "Entrar");
+  });
 });

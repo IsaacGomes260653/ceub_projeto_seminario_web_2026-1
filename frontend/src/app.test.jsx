@@ -3,13 +3,23 @@ import { describe, expect, it } from "vitest";
 import { abrir } from "./teste/apoio.jsx";
 
 describe("entrada no sistema", () => {
+  it("retoma a sessão pelo cookie quando a aba não tem token", async () => {
+    const { falsa } = abrir({ rota: "/catalogo", preparar: (banco) => { banco.cookie = 1; } });
+    expect(await screen.findByRole("heading", { name: "Catálogo" })).toBeInTheDocument();
+    expect(falsa.pedidos[0]).toMatchObject({ metodo: "POST", caminho: "/auth/renovar" });
+    expect(sessionStorage.getItem("ciranda.token")).toBe("token-1");
+  });
+  it("sem token e sem cookie, vai para o login", async () => {
+    abrir({ rota: "/catalogo" });
+    expect(await screen.findByRole("heading", { name: "Entrar" })).toBeInTheDocument();
+  });
   it("manda para o login quem não está logado", async () => {
     abrir({ rota: "/usuarios" });
     expect(await screen.findByRole("heading", { name: "Entrar" })).toBeInTheDocument();
   });
   it("mostra erro com credenciais erradas e mantém a pessoa na tela", async () => {
     const { usuario } = abrir({ rota: "/entrar" });
-    await usuario.type(screen.getByLabelText("E-mail"), "lucia@ciranda.app");
+    await usuario.type(await screen.findByLabelText("E-mail"), "lucia@ciranda.app");
     await usuario.type(screen.getByLabelText("Senha"), "senha-errada");
     await usuario.click(screen.getByRole("button", { name: "Entrar" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("E-mail ou senha incorretos.");
@@ -18,7 +28,7 @@ describe("entrada no sistema", () => {
   });
   it("preenche pela conta de demonstração, entra e mostra o menu completo da administradora", async () => {
     const { usuario } = abrir({ rota: "/entrar" });
-    await usuario.click(screen.getByRole("button", { name: /Administradora/ }));
+    await usuario.click(await screen.findByRole("button", { name: /Administradora/ }));
     expect(screen.getByLabelText("E-mail")).toHaveValue("lucia@ciranda.app");
     await usuario.click(screen.getByRole("button", { name: "Entrar" }));
     const menu = within(await screen.findByRole("navigation", { name: "Principal" }));

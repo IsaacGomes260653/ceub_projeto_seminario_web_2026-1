@@ -6,21 +6,28 @@ export const useSessao = () => useContext(Contexto);
 
 export function ProvedorDeSessao({ children }) {
   const [usuario, setUsuario] = useState(null);
-  const [carregando, setCarregando] = useState(Boolean(sessaoGuardada.ler()));
+  const [carregando, setCarregando] = useState(true);
   const [aviso, setAviso] = useState("");
 
-  const sair = useCallback((mensagem = "") => {
+  const limpar = useCallback((mensagem = "") => {
     sessaoGuardada.gravar(null);
     setUsuario(null);
     setAviso(mensagem);
   }, []);
 
+  // Sair encerra a sessão dos dois lados: apaga o cookie na API e o token nesta aba.
+  const sair = useCallback((mensagem = "") => {
+    api.sair().catch(() => {});
+    limpar(mensagem);
+  }, [limpar]);
+
   useEffect(() => {
-    definirAoExpirar(() => sair("Sua sessão expirou. Entre de novo."));
-    if (!sessaoGuardada.ler()) return;
-    // Ao recarregar a página, confirma o token com o servidor antes de confiar nele.
-    api.eu().then((r) => setUsuario(r.usuario)).catch(() => sessaoGuardada.gravar(null)).finally(() => setCarregando(false));
-  }, [sair]);
+    definirAoExpirar(() => limpar("Sua sessão expirou. Entre de novo."));
+    // Com token na aba, confirma com o servidor antes de confiar nele.
+    // Sem token (aba nova, por exemplo), tenta retomar a sessão pelo cookie HttpOnly.
+    const retomar = sessaoGuardada.ler() ? api.eu() : api.renovar();
+    retomar.then((r) => setUsuario(r.usuario)).catch(() => sessaoGuardada.gravar(null)).finally(() => setCarregando(false));
+  }, [limpar]);
 
   const entrar = useCallback(async (email, senha) => {
     const r = await api.entrar(email, senha);
