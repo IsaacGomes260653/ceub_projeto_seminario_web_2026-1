@@ -2,7 +2,7 @@
 
 Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A Ciranda é um brechó online: quem tem roupa parada deixa a peça em consignação, e quem procura reserva, paga e acompanha o pedido. Este repositório traz os cadastros pedidos na disciplina, com controle de acesso por perfil, e a loja inteira em volta deles.
 
-![CI](https://github.com/lucasamarale/ciranda-web/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/lucasamarale/ceub_projeto_seminario_web_2026-1/actions/workflows/ci.yml/badge.svg)
 
 **No ar:** https://ciranda-web.vercel.app
 
