@@ -1,7 +1,7 @@
 // Impacto evitado quando uma peça usada substitui a produção de uma nova, por categoria.
 // Água em litros, CO2 em kg, pontos do programa. São os fatores do Ciranda original:
 // algodão a 14,1 kg de CO2e e 2.900 L de água por quilo, e a avaliação de ciclo de vida da calça 501.
-export const IMPACTO = {
+export const IMPACTO: Record<string, { agua: number; co2: number; pontos: number }> = {
   "Camisetas e blusas": { agua: 725, co2: 3.5, pontos: 35 },
   "Camisas": { agua: 870, co2: 4.2, pontos: 42 },
   "Vestidos": { agua: 1160, co2: 5.6, pontos: 56 },
@@ -11,7 +11,7 @@ export const IMPACTO = {
 };
 
 // Categoria sem fator confiável soma zero, em vez de um número inventado.
-export function somarImpacto(categorias) {
+export function somarImpacto(categorias: string[]) {
   const t = { agua: 0, co2: 0, pontos: 0 };
   for (const c of categorias) {
     const f = IMPACTO[c];

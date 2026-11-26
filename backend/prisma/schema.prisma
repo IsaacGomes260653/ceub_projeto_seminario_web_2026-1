@@ -1,0 +1,172 @@
+// Esquema do banco do Ciranda Web.
+// Padrão de nomes pedido na disciplina: tbl + número de três dígitos + nome, como em tbl_001_usuarios.
+// No código, cada modelo tem nome em português e os campos em camelCase. O @map e o @@map guardam o nome físico.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/banco/cliente"
+  moduleFormat           = "esm"
+  importFileExtension    = "js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  nome      String
+  email     String   @unique
+  /// Hash bcrypt. A senha em texto nunca é gravada nem devolvida pela API.
+  senhaHash String   @map("senha_hash")
+  perfilId  Int      @map("perfil_id")
+  ativo     Boolean  @default(true)
+  criadoEm  DateTime @default(now()) @map("criado_em")
+
+  perfil  Perfil       @relation(fields: [perfilId], references: [id], onDelete: Restrict)
+  sacola  SacolaItem[]
+  pedidos Pedido[]
+  pecas   Peca[]
+  vendas  PedidoItem[]
+  sessoes Sessao[]
+
+  @@map("tbl_001_usuarios")
+}
+
+model Perfil {
+  id        Int    @id @default(autoincrement())
+  nome      String @unique
+  descricao String @default("")
+
+  usuarios        Usuario[]
+  funcionalidades PerfilFuncionalidade[]
+
+  @@map("tbl_002_perfis")
+}
+
+model Funcionalidade {
+  id        Int    @id @default(autoincrement())
+  /// Chave no formato area.acao, usada pelo código para autorizar cada rota.
+  chave     String @unique
+  nome      String
+  descricao String @default("")
+
+  perfis PerfilFuncionalidade[]
+
+  @@map("tbl_003_funcionalidades")
+}
+
+model PerfilFuncionalidade {
+  perfilId         Int @map("perfil_id")
+  funcionalidadeId Int @map("funcionalidade_id")
+
+  perfil         Perfil         @relation(fields: [perfilId], references: [id], onDelete: Cascade)
+  funcionalidade Funcionalidade @relation(fields: [funcionalidadeId], references: [id], onDelete: Restrict)
+
+  @@id([perfilId, funcionalidadeId])
+  @@map("tbl_004_perfis_funcionalidades")
+}
+
+model Peca {
+  id          Int    @id @default(autoincrement())
+  titulo      String
+  marca       String @default("")
+  tamanho     String @default("")
+  categoria   String
+  conservacao String
+  preco       Float
+  voltas      Int    @default(1)
+  foto        String @default("")
+  situacao    String @default("Disponível")
+  /// Quem deixou a peça em consignação. Vazio quando a peça é do acervo do brechó.
+  donoId      Int?   @map("dono_id")
+  /// Motivo da recusa, quando a consignação não é aceita.
+  motivo      String @default("")
+
+  dono   Usuario?     @relation(fields: [donoId], references: [id], onDelete: SetNull)
+  sacola SacolaItem?
+  itens  PedidoItem[]
+
+  @@index([situacao])
+  @@map("tbl_005_pecas")
+}
+
+model SacolaItem {
+  /// A peça é a chave: uma peça só cabe em uma sacola por vez.
+  pecaId       Int      @id @map("peca_id")
+  usuarioId    Int      @map("usuario_id")
+  reservadaAte DateTime @map("reservada_ate")
+
+  peca    Peca    @relation(fields: [pecaId], references: [id], onDelete: Cascade)
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@map("tbl_006_sacola_itens")
+}
+
+model Pedido {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @map("usuario_id")
+  total     Float
+  situacao  String   @default("Aguardando pagamento")
+  /// Código do Pix simulado. Nenhum dinheiro circula.
+  pix       String
+  rastreio  String   @default("")
+  pontos    Int      @default(0)
+  agua      Float    @default(0)
+  co2       Float    @default(0)
+  expiraEm  DateTime @map("expira_em")
+  criadoEm  DateTime @map("criado_em")
+
+  usuario Usuario        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  itens   PedidoItem[]
+  eventos PedidoEvento[]
+
+  @@index([usuarioId])
+  @@map("tbl_007_pedidos")
+}
+
+model PedidoItem {
+  id        Int    @id @default(autoincrement())
+  pedidoId  Int    @map("pedido_id")
+  pecaId    Int?   @map("peca_id")
+  /// Título, categoria e preço são copiados no fechamento: o pedido não muda se a peça for editada depois.
+  titulo    String
+  categoria String
+  preco     Float
+  donoId    Int?   @map("dono_id")
+  repasse   Float  @default(0)
+
+  pedido Pedido   @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+  peca   Peca?    @relation(fields: [pecaId], references: [id], onDelete: SetNull)
+  dono   Usuario? @relation(fields: [donoId], references: [id], onDelete: SetNull)
+
+  @@index([pedidoId])
+  @@map("tbl_008_pedidos_itens")
+}
+
+model PedidoEvento {
+  id       Int      @id @default(autoincrement())
+  pedidoId Int      @map("pedido_id")
+  etapa    String
+  quando   DateTime
+
+  pedido Pedido @relation(fields: [pedidoId], references: [id], onDelete: Cascade)
+
+  @@index([pedidoId])
+  @@map("tbl_009_pedidos_eventos")
+}
+
+model Sessao {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int      @map("usuario_id")
+  /// Hash SHA-256 do token de renovação. O token em si só existe no cookie HttpOnly do navegador.
+  tokenHash String   @unique @map("token_hash")
+  expiraEm  DateTime @map("expira_em")
+  criadaEm  DateTime @default(now()) @map("criada_em")
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@map("tbl_010_sessoes")
+}

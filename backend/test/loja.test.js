@@ -1,18 +1,18 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { somarImpacto } from "../src/impacto.js";
+import { somarImpacto } from "../src/comum/impacto.ts";
 import { montar } from "./apoio.js";
 
 const MINUTO = 60 * 1000;
 let ctx, relogio, ana, bia, admin;
 beforeEach(async () => {
   relogio = { t: 1_800_000_000_000 };
-  ctx = montar({ agora: () => relogio.t });
+  ctx = await montar({ agora: () => relogio.t });
   ana = await ctx.entrar("ana@ciranda.app");
   bia = await ctx.entrar("beatriz@ciranda.app");
   admin = await ctx.entrar("lucia@ciranda.app");
 });
-const idPeca = (foto) => ctx.db.prepare("SELECT id FROM pecas WHERE foto = ?").get(foto).id;
-const situacao = (id) => ctx.db.prepare("SELECT situacao FROM pecas WHERE id = ?").get(id).situacao;
+const idPeca = (foto) => ctx.db.prepare("SELECT id FROM tbl_005_pecas WHERE foto = ?").get(foto).id;
+const situacao = (id) => ctx.db.prepare("SELECT situacao FROM tbl_005_pecas WHERE id = ?").get(id).situacao;
 const colocar = (token, pecaId) => ctx.api("post", "/api/sacola", token).send({ pecaId });
 // Monta um pedido da Ana com a calça jeans (acervo) e a jaqueta (consignada pela Beatriz).
 async function pedidoDaAna() {
@@ -40,10 +40,10 @@ describe("sacola com reserva de 30 minutos", () => {
   });
   it("recusa peça vendida, peça própria, peça fora do catálogo e peça inexistente", async () => {
     const vendida = idPeca("tenis-lona.webp");
-    ctx.db.prepare("UPDATE pecas SET situacao = 'Vendida' WHERE id = ?").run(vendida);
+    ctx.db.prepare("UPDATE tbl_005_pecas SET situacao = 'Vendida' WHERE id = ?").run(vendida);
     expect((await colocar(ana, vendida)).body.erro).toMatch(/já foi vendida/);
     expect((await colocar(bia, idPeca("jaqueta-jeans.webp"))).body.erro).toMatch(/Esta peça é sua/);
-    const emAnalise = ctx.db.prepare("SELECT id FROM pecas WHERE situacao = 'Em análise'").get().id;
+    const emAnalise = ctx.db.prepare("SELECT id FROM tbl_005_pecas WHERE situacao = 'Em análise'").get().id;
     expect((await colocar(ana, emAnalise)).status).toBe(404);
     expect((await colocar(ana, 9999)).status).toBe(404);
     expect((await colocar(ana, "abc")).status).toBe(400);
@@ -85,19 +85,19 @@ describe("pedido com Pix simulado", () => {
   });
   it("ao pagar, vende as peças, soma uma volta, gera rastreio e credita pontos", async () => {
     const p = await pedidoDaAna();
-    const voltasAntes = ctx.db.prepare("SELECT voltas FROM pecas WHERE foto = 'calca-jeans.webp'").get().voltas;
+    const voltasAntes = ctx.db.prepare("SELECT voltas FROM tbl_005_pecas WHERE foto = 'calca-jeans.webp'").get().voltas;
     const pago = (await ctx.api("post", `/api/pedidos/${p.id}/pagar`, ana)).body;
     expect(pago).toMatchObject({ situacao: "Pago", pontos: 323, agua: 5231, co2: 32.3 });
     expect(pago.rastreio).toMatch(/^CR\d{9}BR$/);
     expect(pago.eventos.map((e) => e.etapa)).toEqual(["Pedido criado", "Pagamento confirmado"]);
     expect(situacao(idPeca("calca-jeans.webp"))).toBe("Vendida");
-    expect(ctx.db.prepare("SELECT voltas FROM pecas WHERE foto = 'calca-jeans.webp'").get().voltas).toBe(voltasAntes + 1);
+    expect(ctx.db.prepare("SELECT voltas FROM tbl_005_pecas WHERE foto = 'calca-jeans.webp'").get().voltas).toBe(voltasAntes + 1);
     expect((await ctx.api("post", `/api/pedidos/${p.id}/pagar`, ana)).status).toBe(409);
     expect((await ctx.api("get", "/api/impacto", ana)).body).toEqual({ pedidos: 1, pecas: 2, pontos: 323, agua: 5231, co2: 32.3 });
   });
   it("paga mesmo se a peça foi removida do acervo no meio do caminho", async () => {
     const p = await pedidoDaAna();
-    ctx.db.prepare("DELETE FROM pecas WHERE foto = 'calca-jeans.webp'").run();
+    ctx.db.prepare("DELETE FROM tbl_005_pecas WHERE foto = 'calca-jeans.webp'").run();
     expect((await ctx.api("post", `/api/pedidos/${p.id}/pagar`, ana)).body.situacao).toBe("Pago");
   });
   it("cancela antes de pagar e devolve as peças", async () => {
@@ -130,7 +130,7 @@ describe("pedido com Pix simulado", () => {
     expect((await ctx.api("get", "/api/pedidos/9999", ana)).status).toBe(404);
   });
   it("perfil sem a funcionalidade de compra não lista pedidos", async () => {
-    ctx.db.prepare("DELETE FROM perfil_funcionalidades WHERE funcionalidade_id = (SELECT id FROM funcionalidades WHERE chave = 'sacola.usar') AND perfil_id = (SELECT id FROM perfis WHERE nome = 'Cliente')").run();
+    ctx.db.prepare("DELETE FROM tbl_004_perfis_funcionalidades WHERE funcionalidade_id = (SELECT id FROM tbl_003_funcionalidades WHERE chave = 'sacola.usar') AND perfil_id = (SELECT id FROM tbl_002_perfis WHERE nome = 'Cliente')").run();
     expect((await ctx.api("get", "/api/pedidos", ana)).status).toBe(403);
     expect((await ctx.api("get", "/api/sacola", ana)).status).toBe(403);
   });
@@ -185,7 +185,7 @@ describe("consignação", () => {
     expect((await ctx.api("delete", `/api/consignacoes/${id}`, ana)).status).toBe(204);
   });
   it("perfil sem a funcionalidade não lista consignações", async () => {
-    ctx.db.prepare("DELETE FROM perfil_funcionalidades WHERE funcionalidade_id = (SELECT id FROM funcionalidades WHERE chave = 'consignacao.publicar') AND perfil_id = (SELECT id FROM perfis WHERE nome = 'Cliente')").run();
+    ctx.db.prepare("DELETE FROM tbl_004_perfis_funcionalidades WHERE funcionalidade_id = (SELECT id FROM tbl_003_funcionalidades WHERE chave = 'consignacao.publicar') AND perfil_id = (SELECT id FROM tbl_002_perfis WHERE nome = 'Cliente')").run();
     expect((await ctx.api("get", "/api/consignacoes", ana)).status).toBe(403);
   });
   it("a venda gera repasse de 60% para quem deixou a peça", async () => {
@@ -235,8 +235,8 @@ describe("cadastro aberto", () => {
     expect(repetido.status).toBe(409);
   });
   it("fecha o cadastro se o perfil Cliente não existir", async () => {
-    ctx.db.prepare("DELETE FROM usuarios WHERE perfil_id = (SELECT id FROM perfis WHERE nome = 'Cliente')").run();
-    ctx.db.prepare("DELETE FROM perfis WHERE nome = 'Cliente'").run();
+    ctx.db.prepare("DELETE FROM tbl_001_usuarios WHERE perfil_id = (SELECT id FROM tbl_002_perfis WHERE nome = 'Cliente')").run();
+    ctx.db.prepare("DELETE FROM tbl_002_perfis WHERE nome = 'Cliente'").run();
     expect((await ctx.api("post", "/api/auth/cadastro").send(dados)).status).toBe(503);
   });
 });
@@ -244,8 +244,8 @@ describe("cadastro aberto", () => {
 describe("remoções em cascata", () => {
   it("remover a conta leva junto sacola e pedidos, e solta as peças do dono", async () => {
     await pedidoDaAna();
-    const idAna = ctx.db.prepare("SELECT id FROM usuarios WHERE email = 'ana@ciranda.app'").get().id;
+    const idAna = ctx.db.prepare("SELECT id FROM tbl_001_usuarios WHERE email = 'ana@ciranda.app'").get().id;
     expect((await ctx.api("delete", `/api/usuarios/${idAna}`, admin)).status).toBe(204);
-    expect(ctx.db.prepare("SELECT COUNT(*) AS n FROM pedidos").get().n).toBe(0);
+    expect(ctx.db.prepare("SELECT COUNT(*) AS n FROM tbl_007_pedidos").get().n).toBe(0);
   });
 });

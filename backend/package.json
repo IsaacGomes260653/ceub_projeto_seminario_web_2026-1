@@ -1,29 +1,51 @@
 {
-  "name": "ciranda-backend",
-  "version": "1.0.0",
+  "name": "ciranda-web-backend",
+  "version": "2.0.0",
   "private": true,
-  "type": "module",
-  "description": "API do Ciranda: usuários, perfis, funcionalidades e peças",
-  "scripts": {
-    "dev": "node --watch src/server.js",
-    "start": "node src/server.js",
-    "test": "vitest run --coverage",
-    "start:e2e": "LIMITE_LOGIN_POR_MINUTO=1000 LIMITE_POR_MINUTO=5000 BANCO=:memory: node src/server.js"
-  },
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "express-rate-limit": "^7.5.0",
-    "helmet": "^8.0.0",
-    "jsonwebtoken": "^9.0.2"
-  },
-  "devDependencies": {
-    "@vitest/coverage-v8": "^2.1.8",
-    "supertest": "^7.0.0",
-    "vitest": "^2.1.8"
-  },
+  "description": "API do Ciranda Web em NestJS, com Prisma e Swagger",
   "engines": {
     "node": ">=22.13"
+  },
+  "dependencies": {
+    "@nestjs/common": "^12.6.3",
+    "@nestjs/core": "^12.6.3",
+    "@nestjs/platform-express": "^12.6.3",
+    "@nestjs/swagger": "^12.1.3",
+    "@prisma/adapter-libsql": "^7.10.1",
+    "@prisma/client": "^7.10.1",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "express-rate-limit": "^8.7.5",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.6.11",
+    "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^5.1.2",
+    "esbuild": "^0.28.2",
+    "prisma": "^7.10.1",
+    "supertest": "^7.3.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.2"
+  },
+  "type": "module",
+  "scripts": {
+    "postinstall": "prisma generate",
+    "build": "prisma generate && tsc -p tsconfig.build.json",
+    "start": "node dist/main.js",
+    "dev": "tsc -p tsconfig.build.json --watch & node --watch dist/main.js",
+    "start:e2e": "LIMITE_LOGIN_POR_MINUTO=1000 LIMITE_POR_MINUTO=5000 BANCO=:memory: node dist/main.js",
+    "test": "vitest run --coverage",
+    "migrar": "prisma migrate dev",
+    "migrar:producao": "prisma migrate deploy",
+    "migracoes:empacotar": "node scripts/empacotar-migracoes.mjs",
+    "empacotar": "esbuild src/vercel.ts --bundle --platform=node --format=esm --packages=external --outfile=pacote/api.mjs --log-level=warning",
+    "build:vercel": "prisma generate && npm run empacotar"
   }
 }
