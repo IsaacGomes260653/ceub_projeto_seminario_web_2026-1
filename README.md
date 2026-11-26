@@ -1,81 +1,124 @@
-# Ciranda Web
+<p align="center">
+  <picture>
+    <source media="(max-width: 767px)" srcset="https://raw.githubusercontent.com/IsaacGomes260653/ceub_projeto_seminario_web_2026-1/main/.github/banner-mobile.svg">
+    <img src="https://raw.githubusercontent.com/IsaacGomes260653/ceub_projeto_seminario_web_2026-1/main/.github/banner.svg" alt="Ciranda, trabalho em grupo do CEUB no ar na Vercel: brechó online com CRUD de usuários, perfis e funcionalidades, sacola com reserva, Pix simulado e arara 3D">
+  </picture>
+</p>
 
-Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A Ciranda é um brechó online: quem tem roupa parada deixa a peça em consignação, e quem procura reserva, paga e acompanha o pedido. Este repositório traz os cadastros pedidos na disciplina, com controle de acesso por perfil, e a loja inteira em volta deles.
+<p align="center">
+  <b>Ciranda é um brechó online: quem tem roupa parada deixa a peça em consignação, e quem procura reserva, paga com Pix simulado e acompanha o pedido.</b><br>
+  Em volta dos três cadastros pedidos na disciplina (usuários, perfis e funcionalidades), com o acesso de cada tela e de cada rota definido pelo perfil.<br>
+  <a href="https://ciranda-web.vercel.app"><b>Abrir o Ciranda</b></a> · contas de demonstração na própria tela de entrada, senha <code>ciranda123</code>
+</p>
 
-![CI](https://github.com/lucasamarale/ciranda-web/actions/workflows/ci.yml/badge.svg)
+<p align="center">
+  <a href="https://github.com/IsaacGomes260653/ceub_projeto_seminario_web_2026-1/actions/workflows/ci.yml"><img alt="Status da CI" src="https://img.shields.io/github/actions/workflow/status/IsaacGomes260653/ceub_projeto_seminario_web_2026-1/ci.yml?branch=main&style=flat-square&label=CI&color=122039&labelColor=0b1324"></a>
+  <a href="https://github.com/IsaacGomes260653/ceub_projeto_seminario_web_2026-1/commits/main"><img alt="Data do último commit" src="https://img.shields.io/github/last-commit/IsaacGomes260653/ceub_projeto_seminario_web_2026-1?style=flat-square&label=%C3%BAltimo%20commit&color=122039&labelColor=0b1324"></a>
+  <img alt="Linguagem principal: JavaScript" src="https://img.shields.io/github/languages/top/IsaacGomes260653/ceub_projeto_seminario_web_2026-1?style=flat-square&logo=javascript&logoColor=white&color=122039&labelColor=0b1324">
+</p>
 
-**No ar:** https://ciranda-web.vercel.app
+<p align="center">
+  <a href="#trabalho-em-grupo">Trabalho em grupo</a> ·
+  <a href="#demonstração">Demonstração</a> ·
+  <a href="#o-que-ele-faz">O que ele faz</a> ·
+  <a href="#stack">Stack</a> ·
+  <a href="#como-rodar">Como rodar</a> ·
+  <a href="#testes-e-qualidade">Testes</a> ·
+  <a href="#estrutura-de-pastas">Estrutura</a> ·
+  <a href="#english-summary">English</a>
+</p>
 
-**Equipe:** Bruno Rodrigues dos Santos, Eduardo Clemente, Isaac Gomes de Moraes e Lucas Amaral Evangelista
+## Trabalho em grupo
 
-## O que foi pedido e onde está
+Projeto da disciplina de Desenvolvimento Web do CEUB, feito em grupo por:
 
-| Requisito | Onde está |
-| --- | --- |
-| Back-end separado no diretório | `backend/` (Node, Express, SQLite) |
-| Front-end com framework à escolha | `frontend/` (React com Vite) |
-| Tailwind CSS e Materialize | `frontend/tailwind.config.js` e `frontend/src/estilo.css` |
-| Identidade visual do CEUB | Paleta oficial da Central da Marca em `frontend/tailwind.config.js` |
-| CRUD 01: Usuário | `backend/src/rotas/usuarios.js` e tela Usuários |
-| CRUD 02: Perfil | `backend/src/rotas/perfis.js` e tela Perfis |
-| CRUD 03: Funcionalidades | `backend/src/rotas/funcionalidades.js` e tela Funcionalidades |
-| Cobertura de testes de 80% | Limite de 80% configurado nos dois `vitest.config`; o CI falha abaixo disso |
-| Cypress | `frontend/cypress/e2e/` (29 testes de ponta a ponta) |
-| Mock, fixture, fake e stub | Mock em `frontend/src/api.test.js`, fixtures em `frontend/cypress/fixtures/`, fake em `frontend/src/teste/apiFalsa.js`, stub da arara em `frontend/cypress/e2e/03-simulado.cy.js` |
-| GitHub Actions (CI/CD) | `.github/workflows/ci.yml` para os testes, e publicação automática na Vercel a cada push na `main` |
-| Mobile | Layout responsivo, testado em 390 px no Cypress |
-| Acessibilidade | Rótulos, foco visível, link de pular ao conteúdo, avisos com `role=status` e `role=alert` |
-| CORS | `backend/src/seguranca.js`, lista de origens liberadas |
-| Tokens | JWT de 30 minutos em `backend/src/auth.js` |
-| Chave de API | Cabeçalho `X-API-Key` exigido em toda rota de `/api` |
-| CSP | Helmet na API e meta tag no `frontend/index.html` |
-| Firewall de camada 7 e WAF | Firewall da Vercel na borda, com regra própria, mais o filtro de requisições e o limite de taxa em `backend/src/seguranca.js` |
+- **Lucas Amaral Evangelista** · [@lucasamarale](https://github.com/lucasamarale)
+- **Eduardo Clemente Cantuario** · [@Educlemente](https://github.com/Educlemente)
+- **Bruno Rodrigues dos Santos** · [@Brunobrs86](https://github.com/Brunobrs86)
+- **Isaac Gomes de Moraes** · [@IsaacGomes260653](https://github.com/IsaacGomes260653)
 
-Além dos três cadastros pedidos, há um quarto, de peças, que alimenta o catálogo.
+Repositório original: [lucasamarale/ceub_projeto_seminario_web_2026-1](https://github.com/lucasamarale/ceub_projeto_seminario_web_2026-1). Cópia publicada com a autorização do grupo, com o histórico de commits completo e a autoria original de cada um.
 
-## A loja
+## Demonstração
 
-Tudo o que o Ciranda original fazia, agora com servidor, permissão por funcionalidade e testes:
+<p align="center">
+  <img src=".github/capturas/demo.gif" width="720" alt="Demonstração do Ciranda: a Ana entra pela conta de demonstração de Cliente, a arara 3D do catálogo carrega e gira com o mouse, a página da Jaqueta jeans oversized mostra a peça em 3D com a água e o carbono que ela poupa, a jaqueta vai para a sacola, o pedido é fechado com um código Pix simulado e, depois de confirmar o pagamento, aparece a tela Pix confirmado com 2.320 L de água, 11,3 kg de carbono e 113 pontos">
+</p>
 
-| Função | Como funciona | Onde está |
+Gravado com o Playwright, com a API e o site rodando localmente a partir de um clone limpo e os dados de demonstração do próprio projeto. O site tem só o tema claro.
+
+<p align="center">
+  <img src=".github/capturas/desktop-peca.png" width="720" alt="Página da Jaqueta jeans oversized: a peça em 3D num cabide, à esquerda; à direita, o preço de R$ 129,90, o selo Disponível, o botão Colocar na sacola, o aviso de 2ª volta, o quadro O que esta volta poupa, com 2.320 L de água e 11,3 kg de carbono, e marca, tamanho, categoria e conservação">
+</p>
+
+<p align="center">
+  <img src=".github/capturas/desktop-bastidores.png" width="720" alt="Tela Bastidores, vista pela administradora Lúcia: vendido, a repassar, o que fica no brechó e 13 peças à venda; abaixo, a Saia midi plissada enviada por Beatriz Ribeiro esperando análise, com os botões Aprovar e Recusar, e a lista de pedidos">
+</p>
+
+No celular, o menu vira um botão e a arara continua girando com o dedo:
+
+<p align="center">
+  <img src=".github/capturas/celular-catalogo.png" width="300" alt="Catálogo numa tela de 390 px: cabeçalho roxo com o botão Menu, a arara 3D com dez peças penduradas e o botão Ver peça, e a busca por peça ou marca">
+  <img src=".github/capturas/celular-peca.png" width="300" alt="Página da Jaqueta jeans oversized numa tela de 390 px: a peça em 3D com a dica Arraste para girar, o nome, o preço, o selo Disponível e o botão Colocar na sacola">
+</p>
+
+## O que ele faz
+
+**Os três cadastros da disciplina, com acesso por perfil.** Cada usuário tem um perfil, e cada perfil tem um conjunto de funcionalidades. O menu só mostra o que o perfil permite, e a API confere a permissão de novo a cada requisição, lendo o usuário no banco: quem chamar a API direto, sem passar pela tela, também é barrado. Há ainda um quarto cadastro, de peças, que alimenta o catálogo.
+
+| Conta de demonstração | Perfil | O que enxerga |
 | --- | --- | --- |
-| Cadastro aberto | Qualquer pessoa cria conta e entra sempre como Cliente. O perfil nunca vem do formulário. | `backend/src/rotas/auth.js`, tela Criar conta |
-| Sacola com reserva | Colocar na sacola reserva a peça por 30 minutos. Duas pessoas não reservam a mesma peça, e a reserva vencida volta sozinha ao catálogo. | `backend/src/rotas/sacola.js`, `backend/src/reservas.js` |
-| Pix simulado | Fechar a sacola gera um pedido com código Pix de mentira e prazo. Um botão faz o papel do banco e abre a tela de comprado, com confetes e o que a compra poupou. Nenhum dinheiro circula. | `backend/src/rotas/pedidos.js`, tela do pedido |
-| Pedidos e rastreio | Linha do tempo de Pago a Entregue, com histórico e código de rastreio simulado. Cada pessoa vê só os próprios pedidos. | `backend/src/rotas/pedidos.js` |
-| Consignação | A pessoa envia a peça, o brechó aprova ou recusa com motivo, e a venda gera repasse de 60% para quem enviou. | `backend/src/rotas/consignacao.js`, telas Vender e Bastidores |
-| Impacto e pontos | Cada peça mostra a água e o carbono que poupa. Cada compra paga soma pontos. Categoria sem fator confiável não mostra número. | `backend/src/impacto.js`, `frontend/src/impacto.js` |
-| Bastidores | Vendido, a repassar, fila de consignação e pedidos para mover de etapa. | `backend/src/rotas/painel.js`, tela Bastidores |
+| lucia@ciranda.app | Administradora | Tudo, incluindo Usuários, Perfis, Funcionalidades e Bastidores |
+| beatriz@ciranda.app | Fornecedor | Catálogo, sacola, pedidos, vender em consignação e cadastro de peças |
+| ana@ciranda.app | Cliente | Catálogo, sacola, pedidos e vender em consignação |
 
-Quatro funcionalidades novas entram no cadastro de funcionalidades e podem ser dadas a qualquer perfil: `sacola.usar`, `consignacao.publicar`, `consignacao.aprovar` e `bastidores.ver`.
+A senha das três é `ciranda123`, e os dados são fictícios.
+
+**A loja em volta dos cadastros:**
+
+- **Cadastro aberto.** Qualquer pessoa cria conta e entra sempre como Cliente: o perfil nunca vem do formulário.
+- **Sacola com reserva.** Colocar na sacola reserva a peça por 30 minutos. Duas pessoas não reservam a mesma peça, e a reserva vencida volta sozinha ao catálogo.
+- **Pix simulado.** Fechar a sacola gera um pedido com um código Pix de mentira e um prazo. Um botão faz o papel do banco e abre a tela de comprado, com confetes. Nenhum dinheiro circula.
+- **Pedidos e rastreio.** Linha do tempo de Pago a Entregue, com histórico e código de rastreio simulado. Cada pessoa vê só os próprios pedidos; o pedido de outra pessoa responde 404.
+- **Consignação.** A pessoa envia a peça, o brechó aprova ou recusa com motivo, e a venda gera um repasse de 60% para quem enviou.
+- **Impacto e pontos.** Cada peça mostra a água e o carbono que aquela volta poupa, e cada compra paga soma pontos. Categoria sem fator confiável não mostra número.
+- **Bastidores.** Vendido, a repassar, fila de consignação e os pedidos para mover de etapa.
+- **Arara 3D.** No topo do catálogo, camisetas, camisas, moletons e jaquetas ficam penduradas numa arara que gira com o mouse ou o dedo, cada tecido com a sua trama. O pacote 3D só é baixado quando o catálogo abre, e em aparelho sem WebGL a arara some e a lista continua inteira.
+
+As funcionalidades da loja (`sacola.usar`, `consignacao.publicar`, `consignacao.aprovar` e `bastidores.ver`) entram no mesmo cadastro de funcionalidades e podem ser dadas a qualquer perfil.
 
 Para ver tudo em cinco minutos: entre como Ana, abra uma peça, coloque na sacola, feche o pedido e confirme o Pix simulado. Em Vender, envie uma peça. Depois entre como Lúcia e abra Bastidores para aprovar a peça e mover o pedido.
 
-## A arara 3D
+**Segurança:**
 
-No topo do catálogo, as peças de cima (camiseta, camisa, moletom e jaqueta) ficam penduradas em uma arara 3D que gira com o mouse ou o dedo. Escolher uma peça, na arara ou na lista, abre a página dela, onde a peça gira em 3D e mostra marca, tamanho, conservação, número de voltas e a estimativa de água e carbono que aquela volta poupa (fatores em `frontend/src/impacto.js`, os mesmos do Ciranda original). O pacote 3D só é baixado quando o catálogo abre, e em aparelho sem WebGL a arara some e a lista continua inteira, então nada depende dela para funcionar.
+- **Chave de API:** toda rota de `/api` exige o cabeçalho `X-API-Key`, comparado em tempo constante. Num site que roda no navegador, essa chave identifica o cliente, mas não é segredo; quem protege os dados é o token.
+- **Tokens:** o login devolve um JWT assinado, válido por 30 minutos. A senha fica guardada com bcrypt.
+- **CORS:** só as origens em `CORS_ORIGENS` são aceitas.
+- **CSP:** a API responde com `default-src 'none'`, e o site restringe scripts, estilos, imagens e conexões à própria origem.
+- **Camada 7:** limite de requisições por minuto (mais apertado no login), corpo limitado a 100 kB e um filtro que recusa padrões conhecidos de ataque na URL e no corpo. Na Vercel, o firewall da borda tem ainda uma regra que nega caminhos típicos de varredura (`/.env`, `/.git`, `/wp-admin`).
+- **SQL:** todas as consultas usam parâmetros.
 
-Cada tecido tem a sua trama: malha nas camisetas e moletons, tela no linho das camisas e sarja no jeans das jaquetas. O pano atrasa, balança e assenta quando a peça gira.
+## Stack
 
-O código que liga a arara ao catálogo está em `frontend/src/arara.js` e `frontend/src/componentes/Arara.jsx`. O pacote compilado fica em `frontend/public/arara3d/`.
+| Parte | Tecnologias |
+| --- | --- |
+| Back-end (`backend/`) | Node 22.13 ou mais novo, Express 4, SQLite embutido do Node (`node:sqlite`), JWT (`jsonwebtoken`), bcryptjs, Helmet, `express-rate-limit` |
+| Front-end (`frontend/`) | React 18 com Vite 5, React Router 6, Tailwind CSS 3 e Materialize 2 |
+| Testes | Vitest com Supertest (API), Vitest com Testing Library (site) e Cypress 16 (de ponta a ponta) |
+| CI e publicação | GitHub Actions e Vercel, com o site e a API como dois serviços do mesmo projeto (`vercel.json`) |
 
-## Como o acesso funciona
+O banco tem nove tabelas: `usuarios`, `perfis`, `funcionalidades`, `perfil_funcionalidades`, `pecas`, `sacola_itens`, `pedidos`, `pedido_itens` e `pedido_eventos`. Ele é criado e preenchido com os dados de demonstração quando a API sobe.
 
-Cada usuário tem um perfil, e cada perfil tem um conjunto de funcionalidades. O menu só mostra o que o perfil permite, e a API confere a permissão de novo a cada requisição, lendo o usuário no banco. Esconder o botão não basta: quem chamar a API direto também é barrado.
-
-Contas de demonstração (senha `ciranda123`, dados fictícios):
-
-| E-mail | Perfil | Enxerga |
-| --- | --- | --- |
-| lucia@ciranda.app | Administradora | Tudo |
-| beatriz@ciranda.app | Fornecedor | Catálogo e peças |
-| ana@ciranda.app | Cliente | Catálogo |
+As cores seguem a Central da Marca do CEUB; o logotipo da instituição não é usado. A arara e os modelos de camiseta, moletom e camisa vêm do componente Clothes Rack, de DiMaac UI. A página do componente não informa a licença, então o repositório traz só o pacote compilado (`frontend/public/arara3d/`), sem o código-fonte dele.
 
 ## Como rodar
 
-Precisa do Node 22.13 ou mais novo, porque a API usa o SQLite que já vem no Node.
+Precisa do Git e do Node 22.13 ou mais novo, porque a API usa o SQLite que já vem no Node.
 
 ```bash
+git clone https://github.com/IsaacGomes260653/ceub_projeto_seminario_web_2026-1.git
+cd ceub_projeto_seminario_web_2026-1
+
 # terminal 1: API em http://localhost:3333
 cd backend
 npm install
@@ -87,51 +130,63 @@ npm install
 npm run dev
 ```
 
-## Testes
+Abra <http://localhost:5173> e toque numa das contas de demonstração. Num clone limpo, a instalação das duas pastas levou cerca de 20 segundos (Windows 11 e Node 26).
+
+- Não precisa de `.env`: sem ele, a API usa a chave e o segredo de desenvolvimento, e o Vite manda o `/api` para a API local. Os modelos estão em `backend/.env.example` e `frontend/.env.example`.
+- Sem `.env`, o banco fica em memória e volta aos dados de demonstração toda vez que a API reinicia. Para gravar em disco, copie o `backend/.env.example` para `backend/.env`: ele aponta o banco para `./dados/ciranda.sqlite`.
+- O `npm install` do front-end baixa o Cypress, que é grande. Para só rodar o site, dá para pular esse download com `CYPRESS_INSTALL_BINARY=0 npm install`.
+
+## Testes e qualidade
 
 ```bash
-cd backend && npm test          # 73 testes, com relatório de cobertura
-cd frontend && npm test         # 100 testes, com relatório de cobertura
-cd frontend && npm run build && npm run e2e   # sobe API e site e roda o Cypress
+cd backend && npm test                         # 73 testes, com relatório de cobertura
+cd frontend && npm test                        # 100 testes, com relatório de cobertura
+cd frontend && npm run build && npm run e2e    # sobe API e site e roda o Cypress
 ```
 
-Cobertura medida na última execução: back-end 99,8% das linhas e front-end 100% das linhas. O relatório detalhado fica em `coverage/index.html` de cada pasta.
+Rodei os dois primeiros e o build num clone limpo: 73 e 100 testes passando, com 99,8% das linhas cobertas no back-end e 100% no front-end. O limite de 80% está nos dois `vitest.config`, e a CI falha abaixo disso. O Cypress tem 29 testes em `frontend/cypress/e2e/`.
 
-Os testes usam três tipos de dublê:
+Os testes usam quatro tipos de dublê:
 
 - **Mock:** `vi.fn()` no lugar do `fetch`, para conferir cabeçalhos e chamadas (`frontend/src/api.test.js`).
 - **Fake:** uma API inteira em memória, com regras parecidas com as da real (`frontend/src/teste/apiFalsa.js`).
 - **Fixture:** respostas prontas em JSON que o Cypress entrega no lugar do servidor (`frontend/cypress/fixtures/`).
+- **Stub:** a arara 3D trocada por um dublê no Cypress (`frontend/cypress/e2e/03-simulado.cy.js`).
 
-No Cypress, os arquivos `01`, `02` e `04` rodam contra a API de verdade (o `04` percorre a loja inteira, da conta nova ao repasse), e o `03` usa `cy.intercept` com fixtures para os casos difíceis de provocar, como servidor fora do ar e sessão vencida.
+A cada push ou pull request, o GitHub Actions (`.github/workflows/ci.yml`) roda os testes do back-end, os testes e o build do front-end e, depois, o Cypress com a API e o site no ar.
 
-## Segurança
-
-- **Chave de API:** toda rota de `/api` exige `X-API-Key`, comparada em tempo constante.
-- **Tokens:** login devolve um JWT assinado, válido por 30 minutos. A senha fica guardada com bcrypt.
-- **CORS:** só as origens em `CORS_ORIGENS` são aceitas.
-- **CSP:** a API responde com `default-src 'none'`, e o site restringe scripts, estilos, imagens e conexões à própria origem.
-- **Camada 7:** limite de requisições por minuto (mais apertado no login), corpo limitado a 100 kB e um filtro que recusa padrões conhecidos de ataque na URL e no corpo.
-- **SQL:** todas as consultas usam parâmetros.
-- **Dados de cada pessoa:** sacola, pedidos e peças em consignação são filtrados pelo dono no servidor. Pedido de outra pessoa responde 404, para não revelar que o número existe.
-
-Observações honestas:
-
-1. São duas camadas. Na borda, o firewall da Vercel faz a mitigação automática de ataques de volume e aplica uma regra nossa, que nega caminhos típicos de varredura (`/.env`, `/.git`, `/wp-admin` e parecidos) antes de chegarem ao site. Dentro da aplicação, o filtro de requisições é um complemento, não um substituto.
-2. Em produção o banco fica em memória: os dados de demonstração voltam ao estado inicial quando a hospedagem reinicia a API. Para um sistema real, o passo seguinte seria um banco gerenciado.
-3. Chave de API em um site que roda no navegador não é segredo, porque qualquer pessoa consegue ler. Ela identifica o cliente autorizado; quem protege os dados é o token.
-4. As cores são as da Central da Marca do CEUB (roxo escuro `#43054E`, roxo `#662C92`, lilás `#BF0087`, magenta `#EC0089` e amarelo `#FDE100`). O logotipo da instituição não é usado.
-5. A arara e os modelos de camiseta, moletom e camisa vêm do componente Clothes Rack, de DiMaac UI. A página do componente não informa a licença, então o repositório traz só o pacote compilado, sem o código-fonte dele.
-
-## Estrutura
+## Estrutura de pastas
 
 ```
-backend/    API (Express), banco (SQLite) e testes (Vitest com Supertest)
-frontend/   Site (React, Tailwind, Materialize), testes (Vitest, Testing Library) e Cypress
-.github/    Pipeline do GitHub Actions
-vercel.json Publicação: o site e a API como dois serviços do mesmo projeto
+.
+├── backend/
+│   ├── src/
+│   │   ├── app.js          # monta o Express: segurança, chave de API e rotas
+│   │   ├── db.js           # esquema do SQLite e dados de demonstração
+│   │   ├── auth.js         # JWT e checagem de funcionalidade por rota
+│   │   ├── seguranca.js    # CORS, CSP, limite de taxa e filtro de requisições
+│   │   └── rotas/          # usuários, perfis, funcionalidades, peças, sacola, pedidos...
+│   └── test/               # Vitest com Supertest
+├── frontend/
+│   ├── src/
+│   │   ├── paginas/        # Catálogo, Peça, Sacola e Pedidos, Vender, Bastidores, cadastros
+│   │   ├── componentes/    # layout, arara 3D, formulários e a tela de comprado
+│   │   └── teste/          # API falsa e apoio dos testes
+│   ├── cypress/            # testes de ponta a ponta e fixtures
+│   └── public/             # fotos das peças e o pacote da arara 3D
+├── .github/                # CI, banner e capturas deste README
+└── vercel.json             # o site e a API como dois serviços do mesmo projeto
 ```
 
-## Pipeline
+---
 
-A cada push ou pull request, o GitHub Actions roda os testes do back-end, os testes e o build do front-end, e depois o Cypress com a API e o site no ar. A cada push na `main`, a Vercel publica o site e a API em https://ciranda-web.vercel.app. Os segredos de produção (segredo do token e chave de API) ficam nas variáveis de ambiente da Vercel, fora do repositório.
+## English summary
+
+**Ciranda** is an online thrift store built as a group project for the Web Development course at CEUB (Brasília): people leave clothes on consignment, others reserve, pay with a simulated Pix and track the order. **[Open Ciranda](https://ciranda-web.vercel.app)** (Portuguese interface; demo accounts on the sign-in page, password `ciranda123`).
+
+- **Team:** Lucas Amaral Evangelista ([@lucasamarale](https://github.com/lucasamarale)), Eduardo Clemente Cantuario ([@Educlemente](https://github.com/Educlemente)), Bruno Rodrigues dos Santos ([@Brunobrs86](https://github.com/Brunobrs86)) and Isaac Gomes de Moraes ([@IsaacGomes260653](https://github.com/IsaacGomes260653)). Original repository: [lucasamarale/ceub_projeto_seminario_web_2026-1](https://github.com/lucasamarale/ceub_projeto_seminario_web_2026-1); this copy is published with the group's permission, with the full commit history and original authorship.
+- **What it does:** CRUD for users, profiles and features, where each profile's features decide what the menu shows and what the API allows; plus a cart that holds items for 30 minutes, simulated Pix payment, order tracking, consignment with a 60% payout, a back-office panel and a 3D clothes rack.
+- **Stack:** Express 4 with Node's built-in SQLite, JWT and an API key on the back end; React 18, Vite, Tailwind CSS and Materialize on the front end; Vitest, Supertest, Testing Library and Cypress; GitHub Actions and Vercel.
+- **Tests:** 73 back-end and 100 front-end tests (99.8% and 100% line coverage, 80% enforced in CI) and 29 Cypress end-to-end tests.
+
+**Run it:** Node 22.13 or newer. Run `npm install` and `npm run dev` in `backend/` (API on port 3333) and again in `frontend/` (site on <http://localhost:5173>). No `.env` is needed for local development.
