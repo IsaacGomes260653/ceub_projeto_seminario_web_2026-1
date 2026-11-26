@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api.js";
+import { Festa } from "../componentes/Festa.jsx";
 import { Espera, usarDados } from "../componentes/usarDados.jsx";
 import { brl, dia, hora, litros, quilos } from "../menu.js";
 import { useSessao } from "../sessao.jsx";
@@ -105,11 +106,14 @@ export function Pedido() {
   const [falha, setFalha] = useState("");
   const [copiado, setCopiado] = useState(false);
   const [ocupado, setOcupado] = useState(false);
+  // A tela de comprado só aparece quando o pagamento acontece nesta visita, não ao reabrir o pedido.
+  const [festa, setFesta] = useState(false);
+  const fecharFesta = useCallback(() => setFesta(false), []);
   if (!p) return <section aria-labelledby="pedido-t"><h1 id="pedido-t" className="titulo">Pedido {id}</h1><Espera erro={erro} aoTentar={carregar} /></section>;
 
   const agir = async (acao) => {
     setOcupado(true); setFalha("");
-    try { setDados(await api.acao(`/pedidos/${p.id}/${acao}`)); } catch (e) { setFalha(e.message); carregar(); } finally { setOcupado(false); }
+    try { setDados(await api.acao(`/pedidos/${p.id}/${acao}`)); if (acao === "pagar") setFesta(true); } catch (e) { setFalha(e.message); carregar(); } finally { setOcupado(false); }
   };
   const copiar = async () => { try { await navigator.clipboard.writeText(p.pix); setCopiado(true); } catch { setFalha("Não deu para copiar. Selecione o código e copie à mão."); } };
   const meu = p.usuarioId === usuario.id;
@@ -118,6 +122,7 @@ export function Pedido() {
   return (
     <article aria-labelledby="pedido-t" className="pedido">
       <Link className="voltar" to={meu ? "/pedidos" : "/bastidores"}><span aria-hidden="true">←</span> {meu ? "Voltar aos pedidos" : "Voltar aos bastidores"}</Link>
+      {festa && <Festa pedido={p} aoFechar={fecharFesta} />}
       <h1 id="pedido-t" className="titulo">Pedido {p.id}</h1>
       <p className="peca-preco"><strong>{brl(p.total)}</strong> <span className={`situacao ${feito >= 0 ? "ok" : ""}`}>{p.situacao}</span></p>
       {!meu && <p className="m-0 mb-4 text-ceub-cinza">Cliente: {p.cliente}</p>}

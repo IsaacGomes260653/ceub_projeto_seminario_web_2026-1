@@ -20,7 +20,8 @@ export function rotasPedidos(db, auth, config, reservas) {
   const CAMPOS = `p.id, p.usuario_id AS usuarioId, u.nome AS cliente, p.total, p.situacao, p.pix, p.rastreio, p.pontos, p.agua, p.co2,
     p.expira_em AS expiraEm, p.criado_em AS criadoEm`;
   const porId = db.prepare(`SELECT ${CAMPOS} FROM pedidos p JOIN usuarios u ON u.id = p.usuario_id WHERE p.id = ?`);
-  const itensDe = db.prepare("SELECT peca_id AS pecaId, titulo, categoria, preco FROM pedido_itens WHERE pedido_id = ? ORDER BY id");
+  const itensDe = db.prepare(`SELECT i.peca_id AS pecaId, i.titulo, i.categoria, i.preco, COALESCE(c.foto, '') AS foto
+    FROM pedido_itens i LEFT JOIN pecas c ON c.id = i.peca_id WHERE i.pedido_id = ? ORDER BY i.id`);
   const eventosDe = db.prepare("SELECT etapa, quando FROM pedido_eventos WHERE pedido_id = ? ORDER BY id");
   const completo = (p) => ({ ...p, itens: itensDe.all(p.id), eventos: eventosDe.all(p.id) });
   // Pedido de outra pessoa responde como inexistente, para não revelar que o número existe.

@@ -31,6 +31,10 @@ describe("loja: compra, consignação e bastidores", () => {
     cy.contains("h2", "Pague com Pix até");
     cy.get(".codigo").should("contain", "PIX-SIMULADO-");
     cy.contains("button", "Confirmar pagamento simulado").click();
+    cy.get("[role=dialog]").should("contain", "Pix confirmado").and("contain", "Jaqueta jeans oversized ganhou mais uma volta na roda.");
+    cy.get(".confete").should("have.length.at.least", 1);
+    cy.focused().should("contain", "Acompanhar pedido").click();
+    cy.get("[role=dialog]").should("not.exist");
     cy.contains("h2", "Andamento");
     cy.get(".etapas li[aria-current=step]").should("contain", "Pago");
     cy.contains("113 pontos");

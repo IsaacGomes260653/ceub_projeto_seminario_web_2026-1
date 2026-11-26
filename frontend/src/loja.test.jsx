@@ -88,6 +88,16 @@ describe("pedido com Pix simulado", () => {
     const { usuario, falsa } = abrir({ rota: "/pedidos/1", como: "ana", preparar: comPedido() });
     expect(await screen.findByText(/Este Pix é simulado/)).toBeInTheDocument();
     await usuario.click(screen.getByRole("button", { name: "Confirmar pagamento simulado" }));
+    // A tela de comprado aparece com o foco no botão principal e some ao fechar.
+    const festa = await screen.findByRole("dialog", { name: "Pix confirmado" });
+    expect(within(festa).getByText("Calça jeans reta ganhou mais uma volta na roda.")).toBeInTheDocument();
+    expect(within(festa).getByText("2.911 L")).toBeInTheDocument();
+    expect(within(festa).getByText("21,0 kg")).toBeInTheDocument();
+    expect(within(festa).getByText("210")).toBeInTheDocument();
+    expect(within(festa).getByRole("link", { name: "Continuar comprando" })).toHaveAttribute("href", "/catalogo");
+    expect(within(festa).getByRole("button", { name: "Acompanhar pedido" })).toHaveFocus();
+    await usuario.click(within(festa).getByRole("button", { name: "Acompanhar pedido" }));
+    expect(screen.queryByRole("dialog")).toBeNull();
     const andamento = (await screen.findByRole("heading", { name: "Andamento" })).closest("section");
     expect(within(andamento).getByText("Pago").closest("li")).toHaveAttribute("aria-current", "step");
     expect(within(andamento).getByText("CR123456789BR")).toBeInTheDocument();
@@ -95,6 +105,28 @@ describe("pedido com Pix simulado", () => {
     expect(screen.getByText("Pagamento confirmado")).toBeInTheDocument();
     expect(falsa.banco.pecas[0]).toMatchObject({ situacao: "Vendida", voltas: 4 });
     expect(screen.queryByRole("button", { name: "Confirmar pagamento simulado" })).toBeNull();
+  });
+  it("a tela de comprado fecha com Esc, fala das peças no plural e solta confetes quando o navegador anima", async () => {
+    const animar = vi.fn(() => ({}));
+    HTMLElement.prototype.animate = animar;
+    try {
+      const { usuario } = abrir({ rota: "/pedidos/1", como: "ana", preparar: comPedido("Aguardando pagamento", { itens: [{ pecaId: 1, titulo: "Calça jeans reta", categoria: "Calças jeans", preco: 60, foto: "calca-jeans.webp" }, { pecaId: 2, titulo: "Vestido midi floral", categoria: "Vestidos", preco: 59.9, foto: "" }] }) });
+      await usuario.click(await screen.findByRole("button", { name: "Confirmar pagamento simulado" }));
+      const festa = await screen.findByRole("dialog", { name: "Pix confirmado" });
+      expect(within(festa).getByText("As 2 peças ganharam mais uma volta na roda.")).toBeInTheDocument();
+      expect(animar).toHaveBeenCalledTimes(44);
+      expect(document.querySelectorAll(".confete")).toHaveLength(44);
+      animar.mock.results.forEach((r) => r.value.onfinish());
+      expect(document.querySelectorAll(".confete")).toHaveLength(0);
+      await waitFor(() => expect(within(festa).getByText("266")).toBeInTheDocument(), { timeout: 3000 });
+      await usuario.keyboard("{Escape}");
+      expect(screen.queryByRole("dialog")).toBeNull();
+    } finally { delete HTMLElement.prototype.animate; }
+  });
+  it("não reabre a tela de comprado ao voltar a um pedido já pago", async () => {
+    abrir({ rota: "/pedidos/1", como: "ana", preparar: comPedido("Pago") });
+    await screen.findByRole("heading", { name: "Andamento" });
+    expect(screen.queryByRole("dialog")).toBeNull();
   });
   it("copia o código do Pix e avisa", async () => {
     const { usuario } = abrir({ rota: "/pedidos/1", como: "ana", preparar: comPedido() });

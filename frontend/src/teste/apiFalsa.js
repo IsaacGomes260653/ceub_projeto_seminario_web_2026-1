@@ -87,7 +87,7 @@ export function criarApiFalsa() {
         const novo = {
           id: banco.compras.length + 1, usuarioId: logado.id, cliente: logado.nome, total, situacao: "Aguardando pagamento", pix: "PIX-SIMULADO-0123456789ABCDEF",
           rastreio: "", pontos: 0, agua: 0, co2: 0, expiraEm: banco.agora + 30 * 60 * 1000, criadoEm: banco.agora,
-          itens: itens.map((i) => ({ pecaId: i.id, titulo: i.titulo, categoria: i.categoria, preco: i.preco })), eventos: [{ etapa: "Pedido criado", quando: banco.agora }],
+          itens: itens.map((i) => ({ pecaId: i.id, titulo: i.titulo, categoria: i.categoria, preco: i.preco, foto: i.foto })), eventos: [{ etapa: "Pedido criado", quando: banco.agora }],
         };
         banco.compras.push(novo);
         banco.sacola = banco.sacola.filter((s) => s.usuarioId !== logado.id);

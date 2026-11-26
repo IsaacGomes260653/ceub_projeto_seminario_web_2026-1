@@ -41,7 +41,7 @@ Tudo o que o Ciranda original fazia, agora com servidor, permissão por funciona
 | --- | --- | --- |
 | Cadastro aberto | Qualquer pessoa cria conta e entra sempre como Cliente. O perfil nunca vem do formulário. | `backend/src/rotas/auth.js`, tela Criar conta |
 | Sacola com reserva | Colocar na sacola reserva a peça por 30 minutos. Duas pessoas não reservam a mesma peça, e a reserva vencida volta sozinha ao catálogo. | `backend/src/rotas/sacola.js`, `backend/src/reservas.js` |
-| Pix simulado | Fechar a sacola gera um pedido com código Pix de mentira e prazo. Um botão faz o papel do banco. Nenhum dinheiro circula. | `backend/src/rotas/pedidos.js`, tela do pedido |
+| Pix simulado | Fechar a sacola gera um pedido com código Pix de mentira e prazo. Um botão faz o papel do banco e abre a tela de comprado, com confetes e o que a compra poupou. Nenhum dinheiro circula. | `backend/src/rotas/pedidos.js`, tela do pedido |
 | Pedidos e rastreio | Linha do tempo de Pago a Entregue, com histórico e código de rastreio simulado. Cada pessoa vê só os próprios pedidos. | `backend/src/rotas/pedidos.js` |
 | Consignação | A pessoa envia a peça, o brechó aprova ou recusa com motivo, e a venda gera repasse de 60% para quem enviou. | `backend/src/rotas/consignacao.js`, telas Vender e Bastidores |
 | Impacto e pontos | Cada peça mostra a água e o carbono que poupa. Cada compra paga soma pontos. Categoria sem fator confiável não mostra número. | `backend/src/impacto.js`, `frontend/src/impacto.js` |
@@ -91,7 +91,7 @@ npm run dev
 
 ```bash
 cd backend && npm test          # 73 testes, com relatório de cobertura
-cd frontend && npm test         # 98 testes, com relatório de cobertura
+cd frontend && npm test         # 100 testes, com relatório de cobertura
 cd frontend && npm run build && npm run e2e   # sobe API e site e roda o Cypress
 ```
 
