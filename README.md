@@ -4,6 +4,8 @@ Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A
 
 ![CI](https://github.com/lucasamarale/ciranda-web/actions/workflows/ci.yml/badge.svg)
 
+**No ar:** https://ciranda-web.vercel.app
+
 ## O que foi pedido e onde está
 
 | Requisito | Onde está |
@@ -18,14 +20,14 @@ Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A
 | Cobertura de testes de 80% | Limite de 80% configurado nos dois `vitest.config`; o CI falha abaixo disso |
 | Cypress | `frontend/cypress/e2e/` (21 testes de ponta a ponta) |
 | Mock, fixture, fake e stub | Mock em `frontend/src/api.test.js`, fixtures em `frontend/cypress/fixtures/`, fake em `frontend/src/teste/apiFalsa.js`, stub da arara em `frontend/cypress/e2e/03-simulado.cy.js` |
-| GitHub Actions (CI/CD) | `.github/workflows/ci.yml` |
+| GitHub Actions (CI/CD) | `.github/workflows/ci.yml` para os testes, e publicação automática na Vercel a cada push na `main` |
 | Mobile | Layout responsivo, testado em 390 px no Cypress |
 | Acessibilidade | Rótulos, foco visível, link de pular ao conteúdo, avisos com `role=status` e `role=alert` |
 | CORS | `backend/src/seguranca.js`, lista de origens liberadas |
 | Tokens | JWT de 30 minutos em `backend/src/auth.js` |
 | Chave de API | Cabeçalho `X-API-Key` exigido em toda rota de `/api` |
 | CSP | Helmet na API e meta tag no `frontend/index.html` |
-| Firewall de camada 7 e WAF | Filtro de requisições e limite de taxa em `backend/src/seguranca.js` (ver observações) |
+| Firewall de camada 7 e WAF | Firewall da Vercel na borda, com regra própria, mais o filtro de requisições e o limite de taxa em `backend/src/seguranca.js` |
 
 Além dos três cadastros pedidos, há um quarto, de peças, que alimenta o catálogo.
 
@@ -49,7 +51,7 @@ Contas de demonstração (senha `ciranda123`, dados fictícios):
 
 ## Como rodar
 
-Precisa do Node 20 ou mais novo.
+Precisa do Node 22.13 ou mais novo, porque a API usa o SQLite que já vem no Node.
 
 ```bash
 # terminal 1: API em http://localhost:3333
@@ -66,7 +68,7 @@ npm run dev
 ## Testes
 
 ```bash
-cd backend && npm test          # 46 testes, com relatório de cobertura
+cd backend && npm test          # 47 testes, com relatório de cobertura
 cd frontend && npm test         # 48 testes, com relatório de cobertura
 cd frontend && npm run build && npm run e2e   # sobe API e site e roda o Cypress
 ```
@@ -92,10 +94,11 @@ No Cypress, os arquivos `01` e `02` rodam contra a API de verdade, e o `03` usa 
 
 Observações honestas:
 
-1. O filtro de requisições é uma proteção dentro da aplicação. Um WAF de verdade fica na frente do servidor (Cloudflare, AWS WAF, Vercel Firewall). Em produção, os dois andam juntos.
-2. Chave de API em um site que roda no navegador não é segredo, porque qualquer pessoa consegue ler. Ela identifica o cliente autorizado; quem protege os dados é o token.
-3. As cores são as da Central da Marca do CEUB (roxo escuro `#43054E`, roxo `#662C92`, lilás `#BF0087`, magenta `#EC0089` e amarelo `#FDE100`). O logotipo da instituição não é usado.
-4. A arara e os modelos de camiseta, moletom e camisa vêm do componente Clothes Rack, de DiMaac UI. A página do componente não informa a licença, então o repositório traz só o pacote compilado, sem o código-fonte dele.
+1. São duas camadas. Na borda, o firewall da Vercel faz a mitigação automática de ataques de volume e aplica uma regra nossa, que nega caminhos típicos de varredura (`/.env`, `/.git`, `/wp-admin` e parecidos) antes de chegarem ao site. Dentro da aplicação, o filtro de requisições é um complemento, não um substituto.
+2. Em produção o banco fica em memória: os dados de demonstração voltam ao estado inicial quando a hospedagem reinicia a API. Para um sistema real, o passo seguinte seria um banco gerenciado.
+3. Chave de API em um site que roda no navegador não é segredo, porque qualquer pessoa consegue ler. Ela identifica o cliente autorizado; quem protege os dados é o token.
+4. As cores são as da Central da Marca do CEUB (roxo escuro `#43054E`, roxo `#662C92`, lilás `#BF0087`, magenta `#EC0089` e amarelo `#FDE100`). O logotipo da instituição não é usado.
+5. A arara e os modelos de camiseta, moletom e camisa vêm do componente Clothes Rack, de DiMaac UI. A página do componente não informa a licença, então o repositório traz só o pacote compilado, sem o código-fonte dele.
 
 ## Estrutura
 
@@ -103,8 +106,9 @@ Observações honestas:
 backend/    API (Express), banco (SQLite) e testes (Vitest com Supertest)
 frontend/   Site (React, Tailwind, Materialize), testes (Vitest, Testing Library) e Cypress
 .github/    Pipeline do GitHub Actions
+vercel.json Publicação: o site e a API como dois serviços do mesmo projeto
 ```
 
 ## Pipeline
 
-A cada push ou pull request, o GitHub Actions roda os testes do back-end, os testes e o build do front-end, e depois o Cypress com a API e o site no ar. Na `main`, se tudo passar, o site pronto é publicado como artefato do workflow.
+A cada push ou pull request, o GitHub Actions roda os testes do back-end, os testes e o build do front-end, e depois o Cypress com a API e o site no ar. A cada push na `main`, a Vercel publica o site e a API em https://ciranda-web.vercel.app. Os segredos de produção (segredo do token e chave de API) ficam nas variáveis de ambiente da Vercel, fora do repositório.

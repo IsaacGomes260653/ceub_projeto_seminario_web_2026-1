@@ -13,6 +13,7 @@ export function criarApp(db, config) {
   const app = express();
   const auth = criarAuth(db, config);
   app.disable("x-powered-by");
+  if (config.atrasDeProxy) app.set("trust proxy", 1);
 
   // A ordem importa: cabeçalhos e CORS primeiro, depois limite, corpo, filtro e chave.
   app.use(cabecalhos());

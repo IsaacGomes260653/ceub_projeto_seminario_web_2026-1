@@ -143,3 +143,17 @@ describe("configuração", () => {
     expect(lerConfig({ NODE_ENV: "production", JWT_SEGREDO: "a", API_KEY: "b", CORS_ORIGENS: "https://a.com, https://b.com" }).corsOrigens).toEqual(["https://a.com", "https://b.com"]);
   });
 });
+
+describe("configuração atrás de proxy", () => {
+  it("na Vercel confia no proxy e libera o próprio endereço no CORS", async () => {
+    const { lerConfig } = await import("../src/config.js");
+    const { criarApp } = await import("../src/app.js");
+    const { abrirBanco } = await import("../src/db.js");
+    const config = lerConfig({ VERCEL: "1", VERCEL_URL: "ciranda-web-abc.vercel.app", VERCEL_PROJECT_PRODUCTION_URL: "ciranda-web.vercel.app" });
+    expect(config.atrasDeProxy).toBe(true);
+    expect(config.corsOrigens).toEqual(expect.arrayContaining(["https://ciranda-web.vercel.app", "https://ciranda-web-abc.vercel.app"]));
+    expect(criarApp(abrirBanco(":memory:"), config).get("trust proxy")).toBe(1);
+    expect(lerConfig({}).atrasDeProxy).toBe(false);
+    expect(lerConfig({ ATRAS_DE_PROXY: "1" }).atrasDeProxy).toBe(true);
+  });
+});

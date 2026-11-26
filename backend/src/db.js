@@ -1,4 +1,5 @@
-import Database from "better-sqlite3";
+// O SQLite embutido do Node é carregado assim para funcionar também dentro do Vitest.
+const { DatabaseSync } = process.getBuiltinModule("node:sqlite");
 import bcrypt from "bcryptjs";
 import fs from "node:fs";
 import path from "node:path";
@@ -84,8 +85,13 @@ export const SENHA_DEMO = "ciranda123";
 // Abre o banco, cria o esquema e, se estiver vazio, grava os dados de demonstração.
 export function abrirBanco(arquivo = ":memory:", { semear = true } = {}) {
   if (arquivo !== ":memory:") fs.mkdirSync(path.dirname(path.resolve(arquivo)), { recursive: true });
-  const db = new Database(arquivo);
-  db.pragma("foreign_keys = ON");
+  // SQLite que já vem no Node: nenhum módulo nativo para compilar na hospedagem.
+  const db = new DatabaseSync(arquivo);
+  db.exec("PRAGMA foreign_keys = ON");
+  db.transaction = (fn) => (...args) => {
+    db.exec("BEGIN");
+    try { const r = fn(...args); db.exec("COMMIT"); return r; } catch (e) { db.exec("ROLLBACK"); throw e; }
+  };
   db.exec(ESQUEMA);
   if (semear && db.prepare("SELECT COUNT(*) AS n FROM perfis").get().n === 0) semearBanco(db);
   return db;
