@@ -1,6 +1,6 @@
 # Ciranda Web
 
-Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A Ciranda é um brechó online: quem tem roupa parada cadastra a peça, e quem procura encontra no catálogo. Este repositório traz o sistema de cadastros do brechó, com controle de acesso por perfil.
+Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A Ciranda é um brechó online: quem tem roupa parada deixa a peça em consignação, e quem procura reserva, paga e acompanha o pedido. Este repositório traz os cadastros pedidos na disciplina, com controle de acesso por perfil, e a loja inteira em volta deles.
 
 ![CI](https://github.com/lucasamarale/ciranda-web/actions/workflows/ci.yml/badge.svg)
 
@@ -20,7 +20,7 @@ Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A
 | CRUD 02: Perfil | `backend/src/rotas/perfis.js` e tela Perfis |
 | CRUD 03: Funcionalidades | `backend/src/rotas/funcionalidades.js` e tela Funcionalidades |
 | Cobertura de testes de 80% | Limite de 80% configurado nos dois `vitest.config`; o CI falha abaixo disso |
-| Cypress | `frontend/cypress/e2e/` (22 testes de ponta a ponta) |
+| Cypress | `frontend/cypress/e2e/` (29 testes de ponta a ponta) |
 | Mock, fixture, fake e stub | Mock em `frontend/src/api.test.js`, fixtures em `frontend/cypress/fixtures/`, fake em `frontend/src/teste/apiFalsa.js`, stub da arara em `frontend/cypress/e2e/03-simulado.cy.js` |
 | GitHub Actions (CI/CD) | `.github/workflows/ci.yml` para os testes, e publicação automática na Vercel a cada push na `main` |
 | Mobile | Layout responsivo, testado em 390 px no Cypress |
@@ -32,6 +32,24 @@ Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A
 | Firewall de camada 7 e WAF | Firewall da Vercel na borda, com regra própria, mais o filtro de requisições e o limite de taxa em `backend/src/seguranca.js` |
 
 Além dos três cadastros pedidos, há um quarto, de peças, que alimenta o catálogo.
+
+## A loja
+
+Tudo o que o Ciranda original fazia, agora com servidor, permissão por funcionalidade e testes:
+
+| Função | Como funciona | Onde está |
+| --- | --- | --- |
+| Cadastro aberto | Qualquer pessoa cria conta e entra sempre como Cliente. O perfil nunca vem do formulário. | `backend/src/rotas/auth.js`, tela Criar conta |
+| Sacola com reserva | Colocar na sacola reserva a peça por 30 minutos. Duas pessoas não reservam a mesma peça, e a reserva vencida volta sozinha ao catálogo. | `backend/src/rotas/sacola.js`, `backend/src/reservas.js` |
+| Pix simulado | Fechar a sacola gera um pedido com código Pix de mentira e prazo. Um botão faz o papel do banco. Nenhum dinheiro circula. | `backend/src/rotas/pedidos.js`, tela do pedido |
+| Pedidos e rastreio | Linha do tempo de Pago a Entregue, com histórico e código de rastreio simulado. Cada pessoa vê só os próprios pedidos. | `backend/src/rotas/pedidos.js` |
+| Consignação | A pessoa envia a peça, o brechó aprova ou recusa com motivo, e a venda gera repasse de 60% para quem enviou. | `backend/src/rotas/consignacao.js`, telas Vender e Bastidores |
+| Impacto e pontos | Cada peça mostra a água e o carbono que poupa. Cada compra paga soma pontos. Categoria sem fator confiável não mostra número. | `backend/src/impacto.js`, `frontend/src/impacto.js` |
+| Bastidores | Vendido, a repassar, fila de consignação e pedidos para mover de etapa. | `backend/src/rotas/painel.js`, tela Bastidores |
+
+Quatro funcionalidades novas entram no cadastro de funcionalidades e podem ser dadas a qualquer perfil: `sacola.usar`, `consignacao.publicar`, `consignacao.aprovar` e `bastidores.ver`.
+
+Para ver tudo em cinco minutos: entre como Ana, abra uma peça, coloque na sacola, feche o pedido e confirme o Pix simulado. Em Vender, envie uma peça. Depois entre como Lúcia e abra Bastidores para aprovar a peça e mover o pedido.
 
 ## A arara 3D
 
@@ -72,12 +90,12 @@ npm run dev
 ## Testes
 
 ```bash
-cd backend && npm test          # 47 testes, com relatório de cobertura
-cd frontend && npm test         # 62 testes, com relatório de cobertura
+cd backend && npm test          # 73 testes, com relatório de cobertura
+cd frontend && npm test         # 98 testes, com relatório de cobertura
 cd frontend && npm run build && npm run e2e   # sobe API e site e roda o Cypress
 ```
 
-Cobertura medida na última execução: back-end 99,6% das linhas e front-end 100% das linhas. O relatório detalhado fica em `coverage/index.html` de cada pasta.
+Cobertura medida na última execução: back-end 99,8% das linhas e front-end 100% das linhas. O relatório detalhado fica em `coverage/index.html` de cada pasta.
 
 Os testes usam três tipos de dublê:
 
@@ -85,7 +103,7 @@ Os testes usam três tipos de dublê:
 - **Fake:** uma API inteira em memória, com regras parecidas com as da real (`frontend/src/teste/apiFalsa.js`).
 - **Fixture:** respostas prontas em JSON que o Cypress entrega no lugar do servidor (`frontend/cypress/fixtures/`).
 
-No Cypress, os arquivos `01` e `02` rodam contra a API de verdade, e o `03` usa `cy.intercept` com fixtures para os casos difíceis de provocar, como servidor fora do ar e sessão vencida.
+No Cypress, os arquivos `01`, `02` e `04` rodam contra a API de verdade (o `04` percorre a loja inteira, da conta nova ao repasse), e o `03` usa `cy.intercept` com fixtures para os casos difíceis de provocar, como servidor fora do ar e sessão vencida.
 
 ## Segurança
 
@@ -95,6 +113,7 @@ No Cypress, os arquivos `01` e `02` rodam contra a API de verdade, e o `03` usa 
 - **CSP:** a API responde com `default-src 'none'`, e o site restringe scripts, estilos, imagens e conexões à própria origem.
 - **Camada 7:** limite de requisições por minuto (mais apertado no login), corpo limitado a 100 kB e um filtro que recusa padrões conhecidos de ataque na URL e no corpo.
 - **SQL:** todas as consultas usam parâmetros.
+- **Dados de cada pessoa:** sacola, pedidos e peças em consignação são filtrados pelo dono no servidor. Pedido de outra pessoa responde 404, para não revelar que o número existe.
 
 Observações honestas:
 

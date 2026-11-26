@@ -89,8 +89,8 @@ describe("CRUD 01: usuários", () => {
 describe("CRUD 02: perfis", () => {
   it("mostra as funcionalidades de cada perfil pelo nome", async () => {
     abrir({ rota: "/perfis", como: "lucia" });
-    await waitFor(() => expect(within(linha("Fornecedor")).getByText("Ver o catálogo, Gerenciar peças")).toBeInTheDocument());
-    expect(within(linha("Cliente")).getByText("Ver o catálogo")).toBeInTheDocument();
+    await waitFor(() => expect(within(linha("Fornecedor")).getByText("Ver o catálogo, Gerenciar peças, Comprar, Vender em consignação")).toBeInTheDocument());
+    expect(within(linha("Cliente")).getByText("Ver o catálogo, Comprar, Vender em consignação")).toBeInTheDocument();
   });
   it("cria um perfil marcando funcionalidades", async () => {
     const { usuario, falsa } = abrir({ rota: "/perfis", como: "lucia" });

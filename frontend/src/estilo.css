@@ -55,7 +55,7 @@ main:focus { outline: none; }
 
 /* Menu */
 .menu { flex: 1; align-items: stretch; gap: .75rem; }
-@media (max-width: 767px) { .menu { position: absolute; left: 0; right: 0; top: 56px; z-index: 20; flex-direction: column; background: var(--ceub-escuro); padding: 12px 16px 16px; box-shadow: 0 12px 24px -12px rgba(0,0,0,.5); } header > div { position: relative; flex-wrap: wrap; } }
+@media (max-width: 1279px) { .menu { position: absolute; left: 0; right: 0; top: 56px; z-index: 20; flex-direction: column; background: var(--ceub-escuro); padding: 12px 16px 16px; box-shadow: 0 12px 24px -12px rgba(0,0,0,.5); } header > div { position: relative; flex-wrap: wrap; } }
 .item-menu { display: block; padding: 10px 14px; border-radius: 999px; color: #fff; font-weight: 600; text-decoration: none; transition: background-color .15s ease, color .15s ease, transform .16s var(--sai); }
 @media (hover: hover) and (pointer: fine) { .item-menu:hover { background: rgba(255,255,255,.16); } .item-menu.ativo:hover { background: #fff; } }
 .item-menu:active { transform: scale(.97); }
@@ -148,7 +148,7 @@ header.bg-ceub-escuro { border-bottom: 4px solid transparent; border-image: line
 .painel.abre { animation: surgir .22s var(--sai) both; transform-origin: top center; }
 .aviso:not(:empty), .erro-geral, .erro { animation: aparecer .2s ease-out both; }
 .arara { animation: aparecer .4s ease-out both; }
-@media (max-width: 767px) { .menu.flex { animation: surgir .18s var(--sai) both; transform-origin: top right; } }
+@media (max-width: 1279px) { .menu.flex { animation: surgir .18s var(--sai) both; transform-origin: top right; } }
 .card.peca { content-visibility: auto; contain-intrinsic-size: auto 420px; }
 /* Esqueleto do catálogo: espelha o cartão e só aparece se a resposta demorar mais de 200 ms */
 .esqueleto { border: 1.5px solid var(--borda); border-radius: 14px; overflow: hidden; background: #fff; animation: aparecer .2s ease-out .2s both; }
@@ -226,3 +226,49 @@ header.bg-ceub-escuro { border-bottom: 4px solid transparent; border-image: line
 .peca .situacao, .peca .voltas, .peca-preco .situacao { flex: none; }
 header .text-sm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 22ch; }
 .tabela-rolavel .acoes .btn { flex: none; }
+
+/* ---------- loja: sacola, pedidos, consignação e bastidores */
+.linhas { list-style: none; margin: 0 0 24px; padding: 0; border-top: 1.5px solid var(--borda); }
+.linhas > li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 0; border-bottom: 1.5px solid var(--borda); }
+.linhas img, .mini-sem-foto { width: 48px; height: 60px; flex: none; border-radius: 8px; object-fit: cover; background: var(--ceub-lilas); }
+.linha-texto { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 2px; overflow-wrap: anywhere; }
+.linha-texto a, .linha-texto .forte { font-weight: 700; color: var(--ceub-escuro); }
+.linha-texto a { text-decoration: underline; text-underline-offset: 3px; }
+.linha-texto span:not(.forte) { font-size: .9rem; color: var(--ceub-cinza); }
+.linha-valor { font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--ceub-escuro); }
+.linhas .situacao, .pedido .situacao { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .8rem; font-weight: 700; background: #ECE7F1; color: #4A3D57; }
+.linhas .situacao.ok, .pedido .situacao.ok { background: #DDF3E4; color: #14532D; }
+.fecho { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
+.fecho p { margin: 0; display: flex; align-items: baseline; gap: 12px; }
+.fecho p span { color: var(--ceub-cinza); font-weight: 600; }
+.fecho p strong { font: 800 1.8rem/1 "Bricolage Grotesque", sans-serif; color: var(--ceub-escuro); font-variant-numeric: tabular-nums; }
+.numeros { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px 24px; margin: 0 0 16px; padding: 18px; border: 1.5px solid var(--borda); border-radius: 12px; }
+.numeros dt { font-size: .82rem; font-weight: 600; color: var(--ceub-cinza); }
+.numeros dd { margin: 0; font: 800 1.6rem/1.15 "Bricolage Grotesque", sans-serif; color: var(--ceub-roxo); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pix { margin-bottom: 32px; }
+.pix .codigo { margin: 12px 0 16px; padding: 12px 14px; border-radius: 8px; background: var(--ceub-lilas); overflow-wrap: anywhere; user-select: all; }
+.etapas { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 0 0 16px; padding: 0; }
+.etapas li { padding-top: 10px; border-top: 4px solid var(--borda); font-size: .85rem; font-weight: 600; color: var(--ceub-cinza); overflow-wrap: anywhere; }
+.etapas li.feita { border-top-color: var(--ceub-roxo); color: var(--ceub-escuro); }
+.etapas li[aria-current] span { font-weight: 800; }
+.historico { list-style: none; margin: 0; padding: 0; border-top: 1.5px solid var(--borda); }
+.historico li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding: 12px 0; border-bottom: 1.5px solid var(--borda); }
+.historico time { font-size: .9rem; color: var(--ceub-cinza); font-variant-numeric: tabular-nums; }
+.repasse-previsto { margin: 0; align-self: end; padding: 12px 14px; border-radius: 8px; background: var(--ceub-lilas); }
+.recusa { flex: 1 1 100%; display: grid; gap: 8px; }
+.recusa label { font-weight: 600; }
+.recusa input { width: 100%; height: 44px; padding: 0 12px; border: 1.5px solid var(--ceub-cinza); border-radius: 8px; background: #fff; box-sizing: border-box; }
+.recusa input:focus { outline: 3px solid var(--ceub-amarelo); outline-offset: 2px; border-color: var(--ceub-escuro); }
+.peca-compra { margin: 0 0 16px; }
+.peca-compra .btn { width: 100%; }
+.peca-compra .aviso { margin: 0; }
+@media (min-width: 640px) { .peca-compra .btn { width: auto; min-width: 240px; } }
+
+/* ---------- menu com nove itens: só vira barra a partir de 1280 px, e o perfil aparece quando sobra espaço */
+@media (min-width: 1280px) { .item-menu { padding: 10px 11px; } .menu { gap: .5rem; } }
+@media (min-width: 1280px) and (max-width: 1439px) { .perfil-nome { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; } }
+.respiro { margin: 0 0 40px; }
+.pedido .peca-preco { margin-bottom: 24px; }
+.linhas .btn { flex: none; }
+@media (max-width: 520px) { .linhas .linha-valor { margin-right: auto; } }
+main p a, .painel a { color: var(--ceub-roxo); font-weight: 600; text-underline-offset: 3px; }

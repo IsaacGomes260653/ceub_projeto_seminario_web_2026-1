@@ -11,6 +11,8 @@ export function lerConfig(env = process.env) {
     limitePorMinuto: Number(env.LIMITE_POR_MINUTO) || 120,
     limiteLoginPorMinuto: Number(env.LIMITE_LOGIN_POR_MINUTO) || 10,
     // Atrás de um proxy (Vercel, por exemplo), o IP real do visitante vem no cabeçalho X-Forwarded-For.
+    // Relógio trocável: os testes adiantam o tempo para ver a reserva vencer.
+    agora: () => Date.now(),
     atrasDeProxy: env.ATRAS_DE_PROXY === "1" || !!env.VERCEL,
   };
   // Na Vercel, o próprio endereço do site entra na lista do CORS sem precisar configurar.

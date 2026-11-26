@@ -40,7 +40,43 @@ CREATE TABLE IF NOT EXISTS pecas (
   preco REAL NOT NULL,
   voltas INTEGER NOT NULL DEFAULT 1,
   foto TEXT NOT NULL DEFAULT '',
-  situacao TEXT NOT NULL DEFAULT 'Disponível'
+  situacao TEXT NOT NULL DEFAULT 'Disponível',
+  dono_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+  motivo TEXT NOT NULL DEFAULT ''
+);
+CREATE TABLE IF NOT EXISTS sacola_itens (
+  peca_id INTEGER PRIMARY KEY REFERENCES pecas(id) ON DELETE CASCADE,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  reservada_ate INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS pedidos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  usuario_id INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  total REAL NOT NULL,
+  situacao TEXT NOT NULL DEFAULT 'Aguardando pagamento',
+  pix TEXT NOT NULL,
+  rastreio TEXT NOT NULL DEFAULT '',
+  pontos INTEGER NOT NULL DEFAULT 0,
+  agua REAL NOT NULL DEFAULT 0,
+  co2 REAL NOT NULL DEFAULT 0,
+  expira_em INTEGER NOT NULL,
+  criado_em INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS pedido_itens (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  pedido_id INTEGER NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
+  peca_id INTEGER REFERENCES pecas(id) ON DELETE SET NULL,
+  titulo TEXT NOT NULL,
+  categoria TEXT NOT NULL,
+  preco REAL NOT NULL,
+  dono_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+  repasse REAL NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS pedido_eventos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  pedido_id INTEGER NOT NULL REFERENCES pedidos(id) ON DELETE CASCADE,
+  etapa TEXT NOT NULL,
+  quando INTEGER NOT NULL
 );
 `;
 
@@ -50,12 +86,16 @@ export const FUNCIONALIDADES_BASE = [
   ["usuarios.gerenciar", "Gerenciar usuários", "Cadastrar, editar e remover usuários."],
   ["perfis.gerenciar", "Gerenciar perfis", "Definir perfis e o que cada um pode fazer."],
   ["funcionalidades.gerenciar", "Gerenciar funcionalidades", "Manter o cadastro de funcionalidades do sistema."],
+  ["sacola.usar", "Comprar", "Reservar peças na sacola, pagar e acompanhar os próprios pedidos."],
+  ["consignacao.publicar", "Vender em consignação", "Enviar peças próprias para análise e acompanhar o repasse."],
+  ["consignacao.aprovar", "Aprovar consignação", "Aprovar ou recusar peças enviadas para o brechó."],
+  ["bastidores.ver", "Ver os bastidores", "Acompanhar vendas, repasses e o andamento dos pedidos."],
 ];
 
 const PERFIS_BASE = [
   ["Administradora", "Acesso completo ao sistema.", FUNCIONALIDADES_BASE.map((f) => f[0])],
-  ["Fornecedor", "Publica e mantém as próprias peças.", ["catalogo.ver", "pecas.gerenciar"]],
-  ["Cliente", "Navega pelo catálogo.", ["catalogo.ver"]],
+  ["Fornecedor", "Mantém o acervo e vende as próprias peças.", ["catalogo.ver", "pecas.gerenciar", "sacola.usar", "consignacao.publicar"]],
+  ["Cliente", "Compra no catálogo e pode vender em consignação.", ["catalogo.ver", "sacola.usar", "consignacao.publicar"]],
 ];
 
 const USUARIOS_BASE = [
@@ -114,6 +154,11 @@ export function semearBanco(db) {
     for (const [nome, email, perfil] of USUARIOS_BASE) insU.run(nome, email, hash, idP[perfil]);
     const insPc = db.prepare("INSERT INTO pecas (titulo, marca, tamanho, categoria, conservacao, preco, voltas, foto) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
     for (const p of PECAS_BASE) insPc.run(...p);
+    // Consignação de demonstração: duas peças já aprovadas da Beatriz e uma esperando análise.
+    const bia = db.prepare("SELECT id FROM usuarios WHERE email = ?").get("beatriz@ciranda.app").id;
+    db.prepare("UPDATE pecas SET dono_id = ? WHERE foto IN ('jaqueta-jeans.webp', 'camisa-linho.webp')").run(bia);
+    db.prepare(`INSERT INTO pecas (titulo, marca, tamanho, categoria, conservacao, preco, voltas, foto, situacao, dono_id)
+      VALUES ('Saia midi plissada', 'Amaro', 'M', 'Saias', 'Ótimo estado', 69.9, 1, '', 'Em análise', ?)`).run(bia);
   });
   tx();
 }

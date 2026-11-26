@@ -50,6 +50,8 @@ export const api = {
   criar: (recurso, dados) => chamar("POST", recurso, dados),
   atualizar: (recurso, id, dados) => chamar("PUT", `${recurso}/${id}`, dados),
   remover: (recurso, id) => chamar("DELETE", `${recurso}/${id}`),
+  acao: (caminho, dados = {}) => chamar("POST", caminho, dados),
+  cadastrar: (dados) => chamar("POST", "/auth/cadastro", dados),
   entrar: (email, senha) => chamar("POST", "/auth/login", { email, senha }),
   eu: () => chamar("GET", "/auth/eu"),
 };

@@ -4,7 +4,9 @@ import { lerId, validar } from "../validar.js";
 
 export const CATEGORIAS = ["Camisetas e blusas", "Camisas", "Vestidos", "Saias", "Calças jeans", "Jaquetas e casacos", "Calçados", "Bolsas e acessórios"];
 export const CONSERVACOES = ["Novo com etiqueta", "Ótimo estado", "Bom estado", "Com marcas de uso"];
-export const SITUACOES = ["Disponível", "Reservada", "Vendida"];
+export const SITUACOES = ["Disponível", "Reservada", "Vendida", "Em análise", "Recusada"];
+// Peça em consignação que ainda não foi aprovada só aparece para quem gerencia o acervo.
+const FORA_DO_CATALOGO = ["Em análise", "Recusada"];
 
 const REGRAS = {
   titulo: { tipo: "texto", obrigatorio: true, min: 3, max: 80 },
@@ -24,6 +26,7 @@ export function rotasPecas(db, auth) {
   const gerenciar = auth.exigir("pecas.gerenciar");
   const porId = db.prepare("SELECT * FROM pecas WHERE id = ?");
   const buscar = (id) => { const p = porId.get(id); if (!p) throw naoEncontrado("Peça"); return p; };
+  const gerencia = (req) => req.usuario.funcionalidades.includes("pecas.gerenciar");
 
   // Busca com parâmetros nomeados: o texto digitado nunca é concatenado ao SQL.
   r.get("/", ver, rota((req, res) => {
@@ -32,9 +35,14 @@ export function rotasPecas(db, auth) {
     if (f.q) { onde.push("(titulo LIKE @q OR marca LIKE @q)"); par.q = `%${f.q}%`; }
     if (f.categoria) { onde.push("categoria = @categoria"); par.categoria = f.categoria; }
     if (f.situacao) { onde.push("situacao = @situacao"); par.situacao = f.situacao; }
+    if (!gerencia(req)) onde.push("situacao NOT IN ('Em análise', 'Recusada')");
     res.json(db.prepare(`SELECT * FROM pecas ${onde.length ? "WHERE " + onde.join(" AND ") : ""} ORDER BY id DESC`).all(par));
   }));
-  r.get("/:id", ver, rota((req, res) => res.json(buscar(lerId(req.params.id)))));
+  r.get("/:id", ver, rota((req, res) => {
+    const p = buscar(lerId(req.params.id));
+    if (FORA_DO_CATALOGO.includes(p.situacao) && !gerencia(req)) throw naoEncontrado("Peça");
+    res.json(p);
+  }));
 
   r.post("/", gerenciar, rota((req, res) => {
     const d = validar(req.body, REGRAS);

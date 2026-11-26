@@ -65,7 +65,7 @@ describe("CRUD 02: perfis", () => {
     const r = await ctx.api("get", "/api/perfis", admin);
     expect(r.body.map((p) => p.nome)).toEqual(["Administradora", "Cliente", "Fornecedor"]);
     expect(r.body[0]).toMatchObject({ usuarios: 1 });
-    expect(r.body[0].funcionalidades).toHaveLength(5);
+    expect(r.body[0].funcionalidades).toHaveLength(9);
   });
   it("cria, lê, atualiza e remove", async () => {
     const criado = await ctx.api("post", "/api/perfis", admin).send({ nome: "Curadoria", descricao: "Avalia peças", funcionalidades: ids("catalogo.ver", "pecas.gerenciar", "catalogo.ver") });
@@ -112,7 +112,7 @@ describe("CRUD 02: perfis", () => {
 describe("CRUD 03: funcionalidades", () => {
   it("lista com a contagem de perfis que usam", async () => {
     const r = await ctx.api("get", "/api/funcionalidades", admin);
-    expect(r.body).toHaveLength(5);
+    expect(r.body).toHaveLength(9);
     expect(r.body.find((f) => f.chave === "catalogo.ver").perfis).toBe(3);
   });
   it("cria, lê, atualiza e remove", async () => {

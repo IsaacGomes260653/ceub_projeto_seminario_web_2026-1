@@ -33,7 +33,7 @@ describe("login", () => {
   it("devolve o usuário da sessão em /eu", async () => {
     const { api, entrar } = montar();
     const r = await api("get", "/api/auth/eu", await entrar("beatriz@ciranda.app"));
-    expect(r.body.usuario).toMatchObject({ email: "beatriz@ciranda.app", perfil: "Fornecedor", funcionalidades: ["catalogo.ver", "pecas.gerenciar"] });
+    expect(r.body.usuario).toMatchObject({ email: "beatriz@ciranda.app", perfil: "Fornecedor", funcionalidades: ["catalogo.ver", "pecas.gerenciar", "sacola.usar", "consignacao.publicar"] });
   });
 });
 

@@ -22,24 +22,24 @@ describe("entrada no sistema", () => {
     expect(screen.getByLabelText("E-mail")).toHaveValue("lucia@ciranda.app");
     await usuario.click(screen.getByRole("button", { name: "Entrar" }));
     const menu = within(await screen.findByRole("navigation", { name: "Principal" }));
-    expect(menu.getAllByRole("link").map((l) => l.textContent)).toEqual(["Catálogo", "Peças", "Usuários", "Perfis", "Funcionalidades"]);
+    expect(menu.getAllByRole("link").map((l) => l.textContent)).toEqual(["Catálogo", "Sacola", "Pedidos", "Vender", "Bastidores", "Peças", "Usuários", "Perfis", "Funcionalidades"]);
     expect(await screen.findByRole("heading", { name: "Catálogo" })).toBeInTheDocument();
     expect(sessionStorage.getItem("ciranda.token")).toBe("token-3");
   });
 });
 
 describe("o perfil decide o que aparece", () => {
-  it("cliente só vê o catálogo e é barrada em tela de gestão", async () => {
+  it("cliente vê a loja e é barrada em tela de gestão", async () => {
     abrir({ rota: "/usuarios", como: "ana" });
     expect(await screen.findByRole("heading", { name: "Sem acesso" })).toBeInTheDocument();
     const menu = within(screen.getByRole("navigation", { name: "Principal" }));
-    expect(menu.getAllByRole("link").map((l) => l.textContent)).toEqual(["Catálogo"]);
+    expect(menu.getAllByRole("link").map((l) => l.textContent)).toEqual(["Catálogo", "Sacola", "Pedidos", "Vender"]);
   });
-  it("fornecedor vê catálogo e peças", async () => {
+  it("fornecedor vê a loja e o cadastro de peças", async () => {
     abrir({ como: "beatriz" });
     const menu = within(await screen.findByRole("navigation", { name: "Principal" }));
-    expect(menu.getAllByRole("link").map((l) => l.textContent)).toEqual(["Catálogo", "Peças"]);
-    expect(screen.getByText(/Beatriz · Fornecedor/)).toBeInTheDocument();
+    expect(menu.getAllByRole("link").map((l) => l.textContent)).toEqual(["Catálogo", "Sacola", "Pedidos", "Vender", "Peças"]);
+    expect(screen.getByText(/^Conectado como/).parentElement).toHaveTextContent("Conectado como Beatriz · Fornecedor");
   });
   it("avisa quando o perfil não tem nenhuma funcionalidade", async () => {
     abrir({ como: "ana", preparar: (banco) => { banco.perfis.find((p) => p.nome === "Cliente").funcionalidades = []; } });

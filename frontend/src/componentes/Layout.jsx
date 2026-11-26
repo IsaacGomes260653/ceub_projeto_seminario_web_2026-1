@@ -22,17 +22,17 @@ export function Layout() {
       <header className="bg-ceub-escuro text-white">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center gap-4">
           <NavLink to="/" aria-label="Ciranda, início" className="shrink-0"><Logo claro tamanho={28} /></NavLink>
-          <button type="button" className="botao-menu md:hidden ml-auto" aria-expanded={aberto} aria-controls="menu-principal" onClick={() => setAberto((a) => !a)}>
+          <button type="button" className="botao-menu xl:hidden ml-auto" aria-expanded={aberto} aria-controls="menu-principal" onClick={() => setAberto((a) => !a)}>
             {aberto ? "Fechar menu" : "Menu"}
           </button>
-          <nav id="menu-principal" aria-label="Principal" className={`${aberto ? "flex" : "hidden"} md:flex menu`}>
-            <ul className="flex flex-col md:flex-row md:items-center gap-1 m-0 p-0 list-none">
+          <nav id="menu-principal" aria-label="Principal" className={`${aberto ? "flex" : "hidden"} xl:flex menu`}>
+            <ul className="flex flex-col xl:flex-row xl:items-center gap-1 m-0 p-0 list-none">
               {itens.map((i) => (
                 <li key={i.rota}><NavLink to={i.rota} className={classe} onClick={() => setAberto(false)}>{i.rotulo}</NavLink></li>
               ))}
             </ul>
-            <div className="flex items-center gap-3 md:ml-auto pt-3 md:pt-0 border-t border-white/25 md:border-0">
-              <span className="text-sm"><span className="sr-only">Conectado como </span>{usuario.nome.split(" ")[0]} · {usuario.perfil}</span>
+            <div className="flex items-center gap-3 xl:ml-auto pt-3 xl:pt-0 border-t border-white/25 xl:border-0">
+              <span className="text-sm"><span className="sr-only">Conectado como </span>{usuario.nome.split(" ")[0]}<span className="perfil-nome"> · {usuario.perfil}</span></span>
               <button type="button" className="btn btn-small sair" onClick={() => sair()}>Sair</button>
             </div>
           </nav>

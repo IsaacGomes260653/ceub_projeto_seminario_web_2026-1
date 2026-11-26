@@ -4,6 +4,7 @@ import { api } from "../api.js";
 import { carregar3D, MODELOS } from "../arara.js";
 import { impactoDe } from "../impacto.js";
 import { brl } from "../menu.js";
+import { useSessao } from "../sessao.jsx";
 
 // Página de uma peça. As peças de cima giram em 3D quando o aparelho permite; as demais mostram a foto.
 export function Peca() {
@@ -13,11 +14,13 @@ export function Peca() {
   const [erro, setErro] = useState("");
   const [gira, setGira] = useState(false);
   const tela = useRef(null);
+  const { pode } = useSessao();
+  const [sacola, setSacola] = useState({ estado: "", erro: "" });
   const volta = `/catalogo${state?.de || ""}`;
 
   useEffect(() => {
     let vivo = true;
-    setPeca(null); setErro(""); setGira(false);
+    setPeca(null); setErro(""); setGira(false); setSacola({ estado: "", erro: "" });
     api.obter("/pecas", id).then((p) => { if (vivo) setPeca(p); }).catch((e) => { if (vivo) setErro(e.status === 404 ? "Esta peça não existe mais no catálogo." : e.message); });
     return () => { vivo = false; };
   }, [id]);
@@ -48,6 +51,18 @@ export function Peca() {
   }
   if (!peca) return <p role="status">Carregando…</p>;
 
+  // Colocar na sacola reserva a peça. Se alguém chegou antes, o servidor avisa e a situação é atualizada.
+  async function reservar() {
+    setSacola({ estado: "enviando", erro: "" });
+    try {
+      await api.criar("/sacola", { pecaId: peca.id });
+      setPeca({ ...peca, situacao: "Reservada" });
+      setSacola({ estado: "dentro", erro: "" });
+    } catch (e) {
+      setSacola({ estado: "", erro: e.message });
+      api.obter("/pecas", id).then(setPeca).catch(() => {});
+    }
+  }
   const impacto = impactoDe(peca.categoria);
   const detalhes = [["Marca", peca.marca], ["Tamanho", peca.tamanho], ["Categoria", peca.categoria], ["Conservação", peca.conservacao]].filter(([, v]) => v);
   return (
@@ -64,6 +79,16 @@ export function Peca() {
         <div className="peca-info">
           <h1 id="peca-titulo" className="titulo">{peca.titulo}</h1>
           <p className="peca-preco"><strong>{brl(peca.preco)}</strong> <span className={`situacao ${peca.situacao === "Disponível" ? "ok" : ""}`}>{peca.situacao}</span></p>
+          {pode("sacola.usar") && (
+            <div className="peca-compra">
+              {sacola.estado === "dentro" ? (
+                <p className="aviso" role="status">Está na sua sacola, reservada por 30 minutos. <Link to="/sacola">Ver a sacola</Link></p>
+              ) : peca.situacao === "Disponível" && (
+                <button type="button" className="btn filled" disabled={sacola.estado === "enviando"} onClick={reservar}>{sacola.estado === "enviando" ? "Reservando…" : "Colocar na sacola"}</button>
+              )}
+              {sacola.erro && <p className="erro-geral" role="alert">{sacola.erro}</p>}
+            </div>
+          )}
           <p className="peca-voltas"><strong>{peca.voltas}ª volta.</strong> {peca.voltas > 1 ? `Esta peça já passou por ${peca.voltas - 1} ${peca.voltas === 2 ? "armário" : "armários"} antes de chegar aqui.` : "Esta peça está na primeira volta pelo brechó."}</p>
           {impacto && (
             <section className="peca-impacto" aria-labelledby="impacto-titulo">

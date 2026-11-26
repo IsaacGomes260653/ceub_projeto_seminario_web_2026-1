@@ -30,10 +30,18 @@ export function ProvedorDeSessao({ children }) {
     return r.usuario;
   }, []);
 
+  const cadastrar = useCallback(async (dados) => {
+    const r = await api.cadastrar(dados);
+    sessaoGuardada.gravar(r.token);
+    setAviso("");
+    setUsuario(r.usuario);
+    return r.usuario;
+  }, []);
+
   const valor = useMemo(() => ({
-    usuario, carregando, aviso, entrar, sair,
+    usuario, carregando, aviso, entrar, cadastrar, sair,
     pode: (chave) => Boolean(usuario && usuario.funcionalidades.includes(chave)),
-  }), [usuario, carregando, aviso, entrar, sair]);
+  }), [usuario, carregando, aviso, entrar, cadastrar, sair]);
 
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>;
 }

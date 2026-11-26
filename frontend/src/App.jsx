@@ -2,12 +2,16 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./componentes/Layout.jsx";
 import { MENU } from "./menu.js";
 import { Funcionalidades, Pecas, Perfis, Usuarios } from "./paginas/Cadastros.jsx";
+import { Bastidores } from "./paginas/Bastidores.jsx";
+import { Cadastro } from "./paginas/Cadastro.jsx";
 import { Catalogo } from "./paginas/Catalogo.jsx";
+import { Pedido, Pedidos, Sacola } from "./paginas/Loja.jsx";
 import { Login } from "./paginas/Login.jsx";
 import { Peca } from "./paginas/Peca.jsx";
+import { Vender } from "./paginas/Vender.jsx";
 import { useSessao } from "./sessao.jsx";
 
-const TELAS = { "/catalogo": Catalogo, "/pecas": Pecas, "/usuarios": Usuarios, "/perfis": Perfis, "/funcionalidades": Funcionalidades };
+const TELAS = { "/catalogo": Catalogo, "/sacola": Sacola, "/pedidos": Pedidos, "/vender": Vender, "/bastidores": Bastidores, "/pecas": Pecas, "/usuarios": Usuarios, "/perfis": Perfis, "/funcionalidades": Funcionalidades };
 
 // Só entra quem está logado. A tela some do menu e a rota fica fechada para quem não tem a funcionalidade.
 // O servidor confere de novo em cada requisição: esconder no front é conforto, não segurança.
@@ -37,6 +41,7 @@ export function App() {
   return (
     <Routes>
       <Route path="/entrar" element={<Login />} />
+      <Route path="/cadastrar" element={<Cadastro />} />
       <Route element={<Protegida><Layout /></Protegida>}>
         <Route index element={<Inicio />} />
         {MENU.map(({ rota, exige }) => {
@@ -44,6 +49,7 @@ export function App() {
           return <Route key={rota} path={rota} element={<Protegida exige={exige}><Tela /></Protegida>} />;
         })}
         <Route path="/catalogo/:id" element={<Protegida exige="catalogo.ver"><Peca /></Protegida>} />
+        <Route path="/pedidos/:id" element={<Protegida><Pedido /></Protegida>} />
         <Route path="*" element={<section><h1 className="titulo">Página não encontrada</h1><p>O endereço não existe. Use o menu para voltar.</p></section>} />
       </Route>
     </Routes>

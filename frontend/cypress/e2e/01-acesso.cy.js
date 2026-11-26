@@ -9,7 +9,7 @@ describe("acesso e perfis", () => {
     cy.get("#login-senha").type("ciranda123");
     cy.contains("button", "Entrar").click();
     cy.contains("h1", "Catálogo").should("be.visible");
-    cy.get("nav[aria-label=Principal] a").should("have.length", 5);
+    cy.get("nav[aria-label=Principal] a").should("have.length", 9);
   });
 
   it("recusa senha errada com mensagem acessível", () => {
@@ -22,12 +22,12 @@ describe("acesso e perfis", () => {
 
   it("cada perfil vê só as próprias funcionalidades", () => {
     cy.entrar("ana");
-    cy.get("nav[aria-label=Principal] a").should("have.length", 1).and("contain", "Catálogo");
+    cy.get("nav[aria-label=Principal] a").then(($a) => expect([...$a].map((a) => a.textContent)).to.deep.equal(["Catálogo", "Sacola", "Pedidos", "Vender"]));
     cy.visit("/usuarios", { onBeforeLoad: (w) => w.sessionStorage.getItem("ciranda.token") });
     cy.contains("h1", "Sem acesso");
 
     cy.entrar("beatriz");
-    cy.get("nav[aria-label=Principal] a").then(($a) => expect([...$a].map((a) => a.textContent)).to.deep.equal(["Catálogo", "Peças"]));
+    cy.get("nav[aria-label=Principal] a").then(($a) => expect([...$a].map((a) => a.textContent)).to.deep.equal(["Catálogo", "Sacola", "Pedidos", "Vender", "Peças"]));
   });
 
   it("a API barra o cliente mesmo com requisição direta", () => {
