@@ -6,7 +6,7 @@ Projeto da disciplina de Desenvolvimento Web (CEUB, Ciência da Computação). A
 
 **No ar:** https://ciranda-web.vercel.app
 
-**Equipe:** Lucas Amaral Evangelista, Bruno, Isaac e Eduardo Clemente
+**Equipe:** Bruno Rodrigues dos Santos, Eduardo Clemente, Isaac Gomes de Moraes e Lucas Amaral Evangelista
 
 ## O que foi pedido e onde está
 
