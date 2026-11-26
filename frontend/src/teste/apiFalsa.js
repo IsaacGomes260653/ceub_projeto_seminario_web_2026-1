@@ -172,6 +172,13 @@ export function criarApiFalsa() {
     pedidos.push({ metodo, caminho, filtros, corpo, cabecalhos: opcoes.headers });
     const token = (opcoes.headers.Authorization || "").replace("Bearer ", "");
 
+    // Cookie de sessão de mentira: guarda o id de quem tem sessão aberta, como o cookie HttpOnly faria.
+    if (caminho === "/auth/renovar") {
+      const dono = banco.usuarios.find((x) => x.id === banco.cookie && x.ativo);
+      if (!dono) return resposta(401, { erro: "Sessão encerrada. Entre de novo." });
+      return resposta(200, { token: `token-${dono.id}`, usuario: sessaoDe(dono) });
+    }
+    if (caminho === "/auth/sair") { banco.cookie = null; return resposta(204); }
     if (caminho === "/auth/cadastro") {
       const detalhes = {};
       if (!corpo.nome) detalhes.nome = "Campo obrigatório.";
@@ -186,6 +193,7 @@ export function criarApiFalsa() {
     if (caminho === "/auth/login") {
       const u = banco.usuarios.find((x) => x.email === corpo.email);
       if (!u || corpo.senha !== "ciranda123") return resposta(401, { erro: "E-mail ou senha incorretos." });
+      banco.cookie = u.id;
       return resposta(200, { token: `token-${u.id}`, usuario: sessaoDe(u) });
     }
     const logado = banco.usuarios.find((x) => `token-${x.id}` === token);

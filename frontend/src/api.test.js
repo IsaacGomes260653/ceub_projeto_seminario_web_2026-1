@@ -53,6 +53,36 @@ describe("camada de API", () => {
     await api.listar("/pecas").catch(() => {});
     expect(aoExpirar).toHaveBeenCalledTimes(1);
   });
+  it("com o JWT vencido, renova pelo cookie e repete a chamada sem a pessoa perceber", async () => {
+    const aoExpirar = vi.fn();
+    definirAoExpirar(aoExpirar);
+    sessaoGuardada.gravar("vencido");
+    const buscar = vi.fn()
+      .mockResolvedValueOnce(resposta(401, { erro: "Sessão expirada. Entre de novo." }))
+      .mockResolvedValueOnce(resposta(200, { token: "novo", usuario: { id: 1 } }))
+      .mockResolvedValueOnce(resposta(200, [{ id: 7 }]));
+    vi.stubGlobal("fetch", buscar);
+    expect(await api.listar("/pecas")).toEqual([{ id: 7 }]);
+    expect(buscar.mock.calls.map(([url]) => url)).toEqual(["/api/pecas", "/api/auth/renovar", "/api/pecas"]);
+    expect(buscar.mock.calls[1][1]).toMatchObject({ method: "POST", credentials: "same-origin" });
+    expect(buscar.mock.calls[2][1].headers.Authorization).toBe("Bearer novo");
+    expect(sessaoGuardada.ler()).toBe("novo");
+    expect(aoExpirar).not.toHaveBeenCalled();
+  });
+  it("chamadas simultâneas dividem um único pedido de renovação", async () => {
+    const buscar = vi.fn().mockResolvedValue(resposta(200, { token: "novo", usuario: { id: 1 } }));
+    vi.stubGlobal("fetch", buscar);
+    await Promise.all([api.renovar(), api.renovar()]);
+    expect(buscar).toHaveBeenCalledTimes(1);
+    await api.renovar();
+    expect(buscar).toHaveBeenCalledTimes(2);
+  });
+  it("sair avisa a API para apagar o cookie de sessão", async () => {
+    const buscar = vi.fn().mockResolvedValue(resposta(204));
+    vi.stubGlobal("fetch", buscar);
+    expect(await api.sair()).toBeNull();
+    expect(buscar.mock.calls[0][0]).toBe("/api/auth/sair");
+  });
   it("segue funcionando se o navegador bloquear o armazenamento", () => {
     const original = Storage.prototype.getItem;
     Storage.prototype.getItem = () => { throw new Error("bloqueado"); };
