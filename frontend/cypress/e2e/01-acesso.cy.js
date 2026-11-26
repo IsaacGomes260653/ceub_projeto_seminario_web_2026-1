@@ -1,3 +1,5 @@
+import { CHAVE } from "../support/demo.js";
+
 // Ponta a ponta de verdade: navegador, front-end e API com banco, sem nada simulado.
 describe("acesso e perfis", () => {
   it("entra pela tela de login e cai no catálogo", () => {
@@ -29,8 +31,8 @@ describe("acesso e perfis", () => {
   });
 
   it("a API barra o cliente mesmo com requisição direta", () => {
-    cy.request({ method: "POST", url: "/api/auth/login", headers: { "X-API-Key": Cypress.env("apiKey") }, body: { email: "ana@ciranda.app", senha: "ciranda123" } }).then(({ body }) => {
-      cy.request({ url: "/api/usuarios", failOnStatusCode: false, headers: { "X-API-Key": Cypress.env("apiKey"), Authorization: `Bearer ${body.token}` } }).its("status").should("eq", 403);
+    cy.request({ method: "POST", url: "/api/auth/login", headers: { "X-API-Key": CHAVE }, body: { email: "ana@ciranda.app", senha: "ciranda123" } }).then(({ body }) => {
+      cy.request({ url: "/api/usuarios", failOnStatusCode: false, headers: { "X-API-Key": CHAVE, Authorization: `Bearer ${body.token}` } }).its("status").should("eq", 403);
       cy.request({ url: "/api/usuarios", failOnStatusCode: false, headers: { Authorization: `Bearer ${body.token}` } }).its("status").should("eq", 401);
     });
   });

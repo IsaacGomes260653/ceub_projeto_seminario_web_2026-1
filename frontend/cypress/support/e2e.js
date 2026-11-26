@@ -1,7 +1,9 @@
+import { CHAVE, SENHA } from "./demo.js";
+
 // Entra pela API e guarda o token, sem passar pela tela de login em todo teste.
-Cypress.Commands.add("entrar", (quem, senha = Cypress.env("senha")) => {
+Cypress.Commands.add("entrar", (quem, senha = SENHA) => {
   const email = quem.includes("@") ? quem : `${quem}@ciranda.app`;
-  cy.request({ method: "POST", url: "/api/auth/login", headers: { "X-API-Key": Cypress.env("apiKey") }, body: { email, senha } })
+  cy.request({ method: "POST", url: "/api/auth/login", headers: { "X-API-Key": CHAVE }, body: { email, senha } })
     .then(({ body }) => {
       cy.visit("/", { onBeforeLoad: (win) => win.sessionStorage.setItem("ciranda.token", body.token) });
     });

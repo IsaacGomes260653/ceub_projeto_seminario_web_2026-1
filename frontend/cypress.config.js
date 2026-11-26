@@ -8,6 +8,5 @@ export default defineConfig({
     video: false,
     viewportWidth: 1280,
     viewportHeight: 800,
-    env: { apiKey: "ciranda-dev-key", senha: "ciranda123" },
   },
 });

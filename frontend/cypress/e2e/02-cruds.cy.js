@@ -1,3 +1,5 @@
+import { CHAVE } from "../support/demo.js";
+
 // Os três cadastros pedidos, do começo ao fim, contra a API real.
 const sufixo = Date.now();
 
@@ -58,7 +60,7 @@ describe("CRUD 03: funcionalidades, CRUD 02: perfis e CRUD 01: usuários", () =>
     cy.get("#usuarios-ativo").uncheck({ force: true });
     cy.contains("button", "Salvar").click();
     cy.linha(usuario.nome).should("contain", "Inativo");
-    cy.request({ method: "POST", url: "/api/auth/login", failOnStatusCode: false, headers: { "X-API-Key": Cypress.env("apiKey") }, body: { email: usuario.email, senha: usuario.senha } })
+    cy.request({ method: "POST", url: "/api/auth/login", failOnStatusCode: false, headers: { "X-API-Key": CHAVE }, body: { email: usuario.email, senha: usuario.senha } })
       .its("status").should("eq", 401);
   });
 
