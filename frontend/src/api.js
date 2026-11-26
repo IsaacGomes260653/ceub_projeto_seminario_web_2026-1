@@ -46,6 +46,7 @@ export const api = {
     const q = new URLSearchParams(Object.entries(filtros || {}).filter(([, v]) => v !== "" && v != null)).toString();
     return chamar("GET", recurso + (q ? `?${q}` : ""));
   },
+  obter: (recurso, id) => chamar("GET", `${recurso}/${id}`),
   criar: (recurso, dados) => chamar("POST", recurso, dados),
   atualizar: (recurso, id, dados) => chamar("PUT", `${recurso}/${id}`, dados),
   remover: (recurso, id) => chamar("DELETE", `${recurso}/${id}`),

@@ -104,9 +104,10 @@ describe("arara 3D", () => {
     cy.visit("/", { onBeforeLoad: (win) => { win.sessionStorage.setItem("ciranda.token", "token-simulado"); win.Ciranda3D = ciranda3D; } });
   };
 
-  it("pendura só as peças com modelo 3D e destaca na lista a que foi escolhida", () => {
+  it("pendura só as peças com modelo 3D e abre a página da peça escolhida", () => {
     const arara = cy.stub().returns(() => {}).as("arara");
-    visitar({ disponivel: () => true, arara });
+    cy.fixture("pecas.json").then((pecas) => cy.intercept("GET", "/api/pecas/1", pecas[0]));
+    visitar({ disponivel: () => true, arara, visor: () => null });
     cy.get("section[aria-label='Arara 3D']").should("contain", "1 peça gira aqui");
     cy.get("@arara").should("have.been.calledOnce").then((stub) => {
       const [, itens, escolher] = stub.firstCall.args;
@@ -115,7 +116,20 @@ describe("arara 3D", () => {
       expect(itens[0].name).to.contain("Jaqueta de teste");
       escolher(0);
     });
-    cy.contains(".peca", "Jaqueta de teste").should("have.class", "destaque").and("have.focus");
+    cy.location("pathname").should("eq", "/catalogo/1");
+    cy.contains("h1", "Jaqueta de teste");
+    cy.contains("4ª volta.");
+    cy.title().should("eq", "Jaqueta de teste · Ciranda");
+    cy.contains("a", "Voltar ao catálogo").click();
+    cy.contains("[role=status]", "2 peças encontradas");
+  });
+
+  it("o cartão da lista também leva à página da peça", () => {
+    cy.fixture("pecas.json").then((pecas) => cy.intercept("GET", "/api/pecas/2", pecas[1]));
+    visitar({ disponivel: () => false });
+    cy.contains("a.abre-peca", "Bolsa de teste").click();
+    cy.contains("h1", "Bolsa de teste");
+    cy.contains("Esta peça ainda não tem foto.");
   });
 
   it("sem WebGL a arara some e o catálogo continua inteiro", () => {

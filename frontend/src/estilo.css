@@ -131,7 +131,6 @@ code { background: var(--ceub-lilas); color: var(--ceub-escuro); padding: 2px 6p
 .arara-palco [role="dialog"] .bottom-\[5\%\] { bottom: 14px !important; gap: 6px !important; }
 .arara-palco canvas { display: block; }
 @media (max-width: 820px) { .arara-palco { height: 380px; } }
-.card.peca.destaque { border-color: var(--ceub-magenta); box-shadow: 0 0 0 3px rgba(191,0,135,.25); }
 .card.peca:focus { outline: none; }
 .card.peca:focus-visible { outline: 3px solid var(--ceub-magenta); outline-offset: 2px; }
 /* Faixa com as cores da marca CEUB sob o cabeçalho */
@@ -170,3 +169,40 @@ header.bg-ceub-escuro { border-bottom: 4px solid transparent; border-image: line
 .tabela-rolavel tbody tr:hover { background-color: transparent; }
 @media (hover: hover) and (pointer: fine) { .tabela-rolavel tbody tr:hover { background-color: #FAF6FD; } }
 .marcar input[type="checkbox"] { flex: none; margin: 2px 4px 0 0; }
+
+/* ---------- botões da arara: cor firme em qualquer aparelho, inclusive no toque e no modo escuro */
+.arara-palco button.inline-flex { background: var(--ceub-roxo) !important; color: #fff !important; border-color: var(--ceub-roxo) !important; font-weight: 700 !important; min-height: 44px; padding: 0 22px !important; font-size: 15px !important; -webkit-text-fill-color: #fff; transition: background-color .15s ease, transform .16s var(--sai) !important; }
+.arara-palco button.inline-flex:active { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { .arara-palco button.inline-flex:hover { background: var(--ceub-escuro) !important; border-color: var(--ceub-escuro) !important; } }
+.arara-palco [role="dialog"] button { color: var(--ceub-tinta); -webkit-text-fill-color: currentColor; }
+.arara-palco [role="dialog"] button.inline-flex { color: #fff !important; -webkit-text-fill-color: #fff; }
+
+/* ---------- cartão inteiro leva à página da peça */
+.card.peca { position: relative; }
+.abre-peca { color: inherit; text-decoration: none; }
+.abre-peca::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.abre-peca:focus-visible { outline: none; }
+.card.peca:has(.abre-peca:focus-visible) { outline: 3px solid var(--ceub-magenta); outline-offset: 2px; }
+
+/* ---------- página da peça */
+.voltar { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; color: var(--ceub-roxo); font-weight: 700; text-decoration: none; }
+@media (hover: hover) and (pointer: fine) { .voltar:hover { text-decoration: underline; } }
+.peca-grade { display: grid; gap: 24px; margin-top: 8px; }
+@media (min-width: 860px) { .peca-grade { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 48px; align-items: start; } }
+.peca-palco { position: relative; aspect-ratio: 4 / 5; max-height: 72vh; width: 100%; border: 1.5px solid var(--borda); border-radius: 18px; overflow: hidden; background: linear-gradient(180deg, #fff 0%, var(--ceub-lilas) 100%); display: grid; place-items: center; animation: aparecer .3s ease-out both; }
+.peca-palco img, .peca-palco canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; transition: opacity .3s ease; }
+.peca-palco .oculta { opacity: 0; pointer-events: none; }
+.peca-palco .sem-foto { color: var(--ceub-cinza); }
+.peca-dica { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); margin: 0; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,.85); color: var(--ceub-cinza); font-size: .8rem; font-weight: 600; pointer-events: none; }
+.peca-info { animation: surgir .3s var(--sai) .06s both; }
+.peca-preco { display: flex; align-items: center; gap: 12px; margin: 12px 0 0; }
+.peca-preco strong { font-family: "Bricolage Grotesque", sans-serif; font-size: 2rem; color: var(--ceub-escuro); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.peca-preco .situacao { font-size: .8rem; font-weight: 700; padding: 3px 11px; border-radius: 999px; background: #EFEAF3; color: var(--ceub-cinza); }
+.peca-preco .situacao.ok { background: #DDF5E7; color: #0B6B3F; }
+.peca-voltas { margin: 16px 0 0; padding: 14px 16px; border-radius: 12px; background: var(--ceub-lilas); color: var(--ceub-tinta); }
+.peca-voltas strong { color: var(--ceub-roxo); }
+.peca-dados { margin: 20px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; }
+.peca-dados div { padding: 12px 0; border-top: 1.5px solid var(--ceub-linha); }
+.peca-dados dt { font-size: .82rem; color: var(--ceub-cinza); font-weight: 600; }
+.peca-dados dd { margin: 2px 0 0; font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .peca-info { animation-name: aparecer; } }

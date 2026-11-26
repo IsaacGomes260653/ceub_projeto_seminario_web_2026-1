@@ -34,7 +34,7 @@ export function Arara({ pecas, aoEscolher }) {
   return (
     <section className="arara" aria-label="Arara 3D">
       <p className="arara-dica">
-        <strong>Passe a mão na arara.</strong> {escolhidas.length} {escolhidas.length === 1 ? "peça gira" : "peças giram"} aqui. As mesmas estão na lista abaixo.
+        <strong>Passe a mão na arara.</strong> {escolhidas.length} {escolhidas.length === 1 ? "peça gira" : "peças giram"} aqui. Toque em uma para abrir.
       </p>
       <div ref={caixa} className="arara-palco" data-estado={estado} />
     </section>

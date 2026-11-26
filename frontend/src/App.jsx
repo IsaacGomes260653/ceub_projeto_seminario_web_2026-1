@@ -4,6 +4,7 @@ import { MENU } from "./menu.js";
 import { Funcionalidades, Pecas, Perfis, Usuarios } from "./paginas/Cadastros.jsx";
 import { Catalogo } from "./paginas/Catalogo.jsx";
 import { Login } from "./paginas/Login.jsx";
+import { Peca } from "./paginas/Peca.jsx";
 import { useSessao } from "./sessao.jsx";
 
 const TELAS = { "/catalogo": Catalogo, "/pecas": Pecas, "/usuarios": Usuarios, "/perfis": Perfis, "/funcionalidades": Funcionalidades };
@@ -42,6 +43,7 @@ export function App() {
           const Tela = TELAS[rota];
           return <Route key={rota} path={rota} element={<Protegida exige={exige}><Tela /></Protegida>} />;
         })}
+        <Route path="/catalogo/:id" element={<Protegida exige="catalogo.ver"><Peca /></Protegida>} />
         <Route path="*" element={<section><h1 className="titulo">Página não encontrada</h1><p>O endereço não existe. Use o menu para voltar.</p></section>} />
       </Route>
     </Routes>

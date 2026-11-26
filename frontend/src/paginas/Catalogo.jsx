@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api } from "../api.js";
 import { brl, CATEGORIAS } from "../menu.js";
 import { Arara } from "../componentes/Arara.jsx";
@@ -37,13 +37,10 @@ export function Catalogo() {
     return () => { vivo = false; };
   }, [q, categoria]);
 
-  // A peça escolhida na arara ganha destaque na lista, e o foco vai até ela.
-  const [destaque, setDestaque] = useState(null);
-  const escolher = (peca) => {
-    setDestaque(peca.id);
-    const cartao = document.getElementById(`peca-${peca.id}`);
-    if (cartao) { cartao.scrollIntoView?.({ behavior: "smooth", block: "center" }); cartao.focus({ preventScroll: true }); }
-  };
+  // Escolher uma peça, na arara ou na lista, abre a página dela. Os filtros vão junto, para o Voltar devolver a mesma lista.
+  const navegar = useNavigate();
+  const de = params.toString() ? `?${params}` : "";
+  const escolher = (peca) => navegar(`/catalogo/${peca.id}`, { state: { de } });
 
   return (
     <section aria-labelledby="catalogo-titulo">
@@ -79,13 +76,13 @@ export function Catalogo() {
       )}
       <ul className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 list-none p-0 m-0">
         {(pecas || []).map((p, i) => (
-          <li key={p.id} id={`peca-${p.id}`} tabIndex="-1" className={`card peca entra m-0 ${destaque === p.id ? "destaque" : ""}`} style={{ "--i": i }}>
+          <li key={p.id} className="card peca entra m-0" style={{ "--i": i }}>
             <div className="card-image foto">
               {p.foto ? <img src={`/fotos/${p.foto}`} alt="" loading={i < 4 ? "eager" : "lazy"} decoding="async" width="480" height="600" /> : <span aria-hidden="true" className="sem-foto">sem foto</span>}
               <span className="voltas">{p.voltas}ª volta</span>
             </div>
             <div className="card-content">
-              <h2 className="nome">{p.titulo}</h2>
+              <h2 className="nome"><Link className="abre-peca" to={`/catalogo/${p.id}`} state={{ de }}>{p.titulo}</Link></h2>
               <p className="m-0 text-sm text-ceub-cinza">{[p.marca, p.tamanho, p.conservacao].filter(Boolean).join(" · ")}</p>
               <p className="m-0 mt-2 flex items-center justify-between gap-2">
                 <strong className="preco">{brl(p.preco)}</strong>
