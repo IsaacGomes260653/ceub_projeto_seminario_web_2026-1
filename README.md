@@ -127,7 +127,7 @@ O professor pediu que o back-end siga estes itens e que o projeto tenha uma skil
 | **HTTP: headers** | `X-API-Key`, `Authorization: Bearer`, cabeçalhos de segurança do helmet e de limite de taxa. | `backend/src/comum/seguranca.ts` |
 | **HTTP: cookies** | Cookie de sessão `HttpOnly`, `Secure`, `SameSite=Strict`, restrito a `/api/auth`. | `backend/src/auth/auth.controller.ts` |
 | **HTTP: CORS** | Lista de origens permitidas. Origem fora da lista recebe 403. | `corsRestrito` em `backend/src/comum/seguranca.ts` |
-| **APIs REST com Swagger** | Documentação gerada do código, com corpo, respostas e esquemas de segurança de cada rota. | https://ciranda-web.vercel.app/api/docs e `backend/src/app.ts` |
+| **APIs REST com Swagger** | Documentação gerada do código, com corpo, respostas e esquemas de segurança de cada rota. | <https://ciranda-web.vercel.app/api/docs> e `backend/src/app.ts` |
 | **ORM e migrations: Prisma** | Todo acesso ao banco pelo cliente do Prisma. Mudança de banco só por migration. | `backend/prisma/schema.prisma` e `backend/prisma/migrations/` |
 | **Padrão de tabelas** | `tbl` + número + nome: `tbl_001_usuarios` até `tbl_010_sessoes`. Um teste lê o banco e falha se alguma tabela fugir do padrão. | `backend/prisma/schema.prisma` e `backend/test/plataforma.test.js` |
 | **OWASP: SQL injection** | Consultas parametrizadas pelo Prisma. Nenhum valor de requisição é colado em SQL. | `backend/src/banco/prisma.service.ts` |
@@ -149,7 +149,7 @@ O professor pediu que o back-end siga estes itens e que o projeto tenha uma skil
 | Testes | Vitest com Supertest (API), Vitest com Testing Library (site) e Cypress 16 (de ponta a ponta) |
 | CI e publicação | GitHub Actions e Vercel, com o site e a API como dois serviços do mesmo projeto (`vercel.json`) |
 
-O banco tem dez tabelas no padrão `tbl_NNN_nome`, de `tbl_001_usuarios` a `tbl_010_sessoes`, definidas em `backend/prisma/schema.prisma` e criadas por migration. Quando a API sobe, ela aplica as migrations e grava os dados de demonstração. A documentação da API, gerada pelo Swagger, fica em https://ciranda-web.vercel.app/api/docs.
+O banco tem dez tabelas no padrão `tbl_NNN_nome`, de `tbl_001_usuarios` a `tbl_010_sessoes`, definidas em `backend/prisma/schema.prisma` e criadas por migration. Quando a API sobe, ela aplica as migrations e grava os dados de demonstração. A documentação da API, gerada pelo Swagger, fica em <https://ciranda-web.vercel.app/api/docs>.
 
 As cores seguem a Central da Marca do CEUB; o logotipo da instituição não é usado. A arara e os modelos de camiseta, moletom e camisa vêm do componente Clothes Rack, de DiMaac UI. A página do componente não informa a licença, então o repositório traz só o pacote compilado (`frontend/public/arara3d/`), sem o código-fonte dele.
 
