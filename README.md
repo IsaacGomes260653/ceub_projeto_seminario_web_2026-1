@@ -282,6 +282,49 @@ erDiagram
 - **Item do pedido:** guarda uma cópia do título, da categoria e do preço, para o pedido não mudar se a peça for editada depois.
 - **Exclusões, pelas regras das chaves estrangeiras:** apagar um usuário apaga a sacola, os pedidos e as sessões dele; nas peças e nos itens de pedido, a `dono_id` fica vazia. Um perfil com usuários não pode ser apagado, nem uma funcionalidade que algum perfil usa.
 
+## Rotas da API
+
+Resumo tirado dos controladores. A documentação completa, com o corpo e as respostas de cada rota, fica no Swagger: <https://ciranda-web.vercel.app/api/docs> (ou <http://localhost:3333/api/docs> com a API rodando localmente).
+
+Toda rota pede o cabeçalho `X-API-Key`, menos `/api/saude`. Nas rotas marcadas com uma funcionalidade, a pessoa precisa estar logada (JWT no cabeçalho `Authorization`) e o perfil dela precisa ter essa funcionalidade; "logado" quer dizer qualquer perfil.
+
+| Método | Rota | Quem pode acessar | Para que serve |
+| --- | --- | --- | --- |
+| GET | `/api/saude` | Qualquer um, sem a chave | Diz se a API está no ar |
+| POST | `/api/auth/login` | Só a chave | Entra com e-mail e senha: devolve o JWT e grava o cookie de sessão |
+| POST | `/api/auth/cadastro` | Só a chave | Cria uma conta, sempre com o perfil Cliente |
+| POST | `/api/auth/renovar` | Só a chave, com o cookie de sessão | Troca o cookie de sessão por um JWT novo |
+| POST | `/api/auth/sair` | Só a chave | Encerra a sessão: apaga a sessão no banco e o cookie |
+| GET | `/api/auth/eu` | Logado | Diz quem está logado, com o perfil e as funcionalidades |
+| GET, POST | `/api/usuarios` | `usuarios.gerenciar` | Lista e cria usuários |
+| GET, PUT, DELETE | `/api/usuarios/:id` | `usuarios.gerenciar` | Busca, edita e remove um usuário |
+| GET | `/api/perfis` | `perfis.gerenciar` ou `usuarios.gerenciar` | Lista os perfis |
+| POST | `/api/perfis` | `perfis.gerenciar` | Cria um perfil com as funcionalidades dele |
+| GET, PUT, DELETE | `/api/perfis/:id` | `perfis.gerenciar` | Busca, edita e remove um perfil (só remove perfil sem usuários) |
+| GET | `/api/funcionalidades` | `funcionalidades.gerenciar` ou `perfis.gerenciar` | Lista as funcionalidades |
+| POST | `/api/funcionalidades` | `funcionalidades.gerenciar` | Cria uma funcionalidade |
+| GET, PUT, DELETE | `/api/funcionalidades/:id` | `funcionalidades.gerenciar` | Busca, edita e remove uma funcionalidade (só remove a que nenhum perfil usa) |
+| GET | `/api/pecas`, `/api/pecas/:id` | `catalogo.ver` | Lista o catálogo e busca uma peça. Quem não gerencia o acervo não vê peça em análise nem recusada |
+| POST | `/api/pecas` | `pecas.gerenciar` | Cadastra uma peça no acervo |
+| PUT, DELETE | `/api/pecas/:id` | `pecas.gerenciar` | Edita e remove uma peça |
+| GET, POST | `/api/sacola` | `sacola.usar` | Mostra a própria sacola e coloca uma peça nela, reservada por 30 minutos |
+| DELETE | `/api/sacola/:pecaId` | `sacola.usar` | Tira a peça da sacola, e ela volta ao catálogo |
+| GET | `/api/pedidos` | `sacola.usar`; com `?todos=1`, `bastidores.ver` | Lista os próprios pedidos ou, com `todos=1`, os de todo mundo |
+| GET | `/api/pedidos/:id` | Logado | Busca um pedido. O de outra pessoa responde 404, a não ser para quem tem `bastidores.ver` |
+| POST | `/api/pedidos` | `sacola.usar` | Fecha a sacola num pedido, com o código Pix simulado e 30 minutos para pagar |
+| POST | `/api/pedidos/:id/pagar` | `sacola.usar` | Confirma o Pix simulado: vende as peças, gera o rastreio e soma os pontos |
+| POST | `/api/pedidos/:id/cancelar` | `sacola.usar` | Cancela um pedido ainda não pago |
+| POST | `/api/pedidos/:id/avancar` | `bastidores.ver` | Move o pedido para a etapa seguinte: Pago, Em separação, Enviado, Entregue |
+| GET | `/api/consignacoes` | `consignacao.publicar`; com `?fila=1`, `consignacao.aprovar` | Lista as próprias peças em consignação ou, com `fila=1`, as que esperam análise |
+| POST | `/api/consignacoes` | `consignacao.publicar` | Envia uma peça para análise |
+| POST | `/api/consignacoes/:id/aprovar` | `consignacao.aprovar` | Aprova a peça, que entra no catálogo |
+| POST | `/api/consignacoes/:id/recusar` | `consignacao.aprovar` | Recusa a peça, com motivo |
+| DELETE | `/api/consignacoes/:id` | `consignacao.publicar` | Retira uma peça que ainda não entrou no catálogo |
+| GET | `/api/impacto` | `sacola.usar` | Mostra o que as compras da pessoa já pouparam |
+| GET | `/api/bastidores` | `bastidores.ver` | Painel do brechó: vendido, a repassar, peças e pedidos por situação |
+
+Nos dados de demonstração, a Administradora tem todas as funcionalidades; o Fornecedor tem `catalogo.ver`, `pecas.gerenciar`, `sacola.usar` e `consignacao.publicar`; e o Cliente tem `catalogo.ver`, `sacola.usar` e `consignacao.publicar`.
+
 ## Como rodar
 
 Precisa do Git e do Node 22.13 ou mais novo.
