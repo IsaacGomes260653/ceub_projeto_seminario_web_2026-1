@@ -138,6 +138,44 @@ O banco tem dez tabelas no padrão `tbl_NNN_nome`, de `tbl_001_usuarios` a `tbl_
 
 As cores seguem a Central da Marca do CEUB; o logotipo da instituição não é usado. A arara e os modelos de camiseta, moletom e camisa vêm do componente Clothes Rack, de DiMaac UI. A página do componente não informa a licença, então o repositório traz só o pacote compilado (`frontend/public/arara3d/`), sem o código-fonte dele.
 
+## Arquitetura
+
+```mermaid
+flowchart LR
+  subgraph navegador["Navegador"]
+    site["Site em React 18 + Vite"]
+    jwt["JWT de 30 minutos<br/>no sessionStorage"]
+    cookie["Cookie de sessão HttpOnly<br/>SameSite=Strict, Path=/api/auth"]
+  end
+
+  subgraph api["API em NestJS"]
+    chave["Guarda da chave de API<br/>(X-API-Key)"]
+    auth["/api/auth<br/>login, cadastro, renovar e sair"]
+    guardas["Guardas do JWT e da permissão<br/>(funcionalidade do perfil)"]
+    rotas["Controladores e serviços<br/>cadastros e loja"]
+  end
+
+  prisma["Prisma 7<br/>adaptador libSQL"]
+  banco[("SQLite<br/>tbl_001 a tbl_010")]
+
+  site -- "toda requisição a /api" --> chave
+  chave --> auth
+  chave --> guardas --> rotas
+  jwt -. "Authorization: Bearer" .-> guardas
+  cookie -. "só em /api/auth" .-> auth
+  auth -- "JWT novo + cookie novo" --> site
+  auth --> prisma
+  guardas -- "lê usuário e perfil" --> prisma
+  rotas --> prisma
+  prisma --> banco
+```
+
+- **Front-end:** o site em React fala só com `/api`. Em desenvolvimento, o Vite repassa `/api` para a API em `localhost:3333`; na Vercel, o site e a API são dois serviços do mesmo projeto (`vercel.json`).
+- **Chave de API:** uma guarda global confere o `X-API-Key` em toda rota, menos em `/api/saude`.
+- **JWT:** o login devolve um JWT de 30 minutos, que o site guarda no `sessionStorage` e manda no cabeçalho `Authorization`. A cada requisição, a guarda lê no banco o usuário, o perfil e as funcionalidades.
+- **Cookie de sessão:** o login também grava um cookie `HttpOnly` com um token de uso único, que o banco guarda só como hash SHA-256 (`tbl_010_sessoes`). Quando o JWT vence, o site chama `POST /api/auth/renovar`, recebe um JWT novo e um cookie novo e repete a chamada uma vez.
+- **Banco:** todo acesso passa pelo Prisma. Sem `BANCO` no `.env`, a API usa um SQLite descartável, aplica as migrations e grava os dados de demonstração ao subir.
+
 ## Como rodar
 
 Precisa do Git e do Node 22.13 ou mais novo.
