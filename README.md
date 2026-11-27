@@ -378,6 +378,42 @@ Os testes usam quatro tipos de dublê:
 
 A cada push ou pull request, o GitHub Actions (`.github/workflows/ci.yml`) confere o esquema do Prisma, roda os testes e o build do back-end, os testes e o build do front-end e, depois, o Cypress com a API e o site no ar.
 
+## Solução de problemas
+
+A CI roda em Linux (`ubuntu-latest`). Os problemas abaixo aparecem só no Windows e foram reproduzidos no Windows 11 com o Node 26, a partir deste repositório.
+
+**`EPERM, Permission denied` nos testes do back-end.** Quase todos os testes do `npm test` aparecem como falhos, com o erro apontando para `test/preparo.js` e para um arquivo `ciranda-….db` na pasta temporária.
+
+- **Causa:** depois de cada teste, o `preparo.js` apaga o banco SQLite temporário daquele teste. No Windows, o arquivo ainda está aberto nesse momento, e o Windows não deixa apagar arquivo aberto; o Linux deixa. O erro está na limpeza, não nas verificações: com a limpeza ignorando o `EPERM`, 95 dos 97 testes passaram (os outros dois estão no próximo item).
+- **O que fazer:** use o resultado da CI como referência, ou rode os testes do back-end num Linux, como o WSL. Os bancos que não foram apagados ficam na pasta temporária; para limpar, no PowerShell: `Remove-Item "$env:TEMP\ciranda-*.db*"`.
+
+**Dois testes de `test/plataforma.test.js` falham no Windows.**
+
+- *"o SQL que a API aplica ao subir é o mesmo da pasta prisma/migrations"*, com a mensagem `rode npm run migracoes:empacotar`: o Git do Windows vem com `core.autocrlf=true` e troca o fim de linha dos arquivos para CRLF no clone, e o teste compara o texto exato dos arquivos. Não rode o `migracoes:empacotar` por causa disso, porque ele gravaria os CRLF no arquivo empacotado. Clone sem a conversão: `git clone -c core.autocrlf=false https://github.com/IsaacGomes260653/ceub_projeto_seminario_web_2026-1.git`.
+- *"resolve o endereço do banco"*: o teste espera um caminho no formato do Linux (`file:/…/dados/x.db`), e no Windows o caminho começa com a letra do disco (`file:C:\…`).
+
+**`npm run e2e` não roda no Windows.** O script `start:e2e` do back-end define variáveis no formato `NOME=valor comando`, que o `cmd.exe` usado pelo npm no Windows não entende (`'LIMITE_LOGIN_POR_MINUTO' não é reconhecido como um comando interno`). Além disso, o `start-server-and-test` tenta encerrar os servidores com o `wmic.exe`, que as versões recentes do Windows 11 não trazem mais: ele cai com `spawn wmic.exe ENOENT` e deixa os servidores rodando. Para rodar o Cypress, use três terminais do PowerShell:
+
+```powershell
+# terminal 1: API com os limites do teste e banco descartável
+cd backend
+npm run build
+$env:LIMITE_LOGIN_POR_MINUTO="1000"; $env:LIMITE_POR_MINUTO="5000"; $env:BANCO=":memory:"; node dist/main.js
+
+# terminal 2: site já compilado, em http://localhost:4173
+cd frontend
+npm run build
+npm run preview
+
+# terminal 3: Cypress
+cd frontend
+npm run cy:run
+```
+
+**O teste dos confetes falha no Cypress.** Se os *Efeitos de animação* do Windows estiverem desligados (Configurações → Acessibilidade → Efeitos visuais), o navegador informa `prefers-reduced-motion: reduce`, e a tela de comprado não solta confetes de propósito (`frontend/src/componentes/Festa.jsx`). O teste *"reserva uma peça, fecha o pedido e paga com Pix simulado"* espera os confetes e falha. Para esse teste passar, os efeitos de animação precisam estar ligados.
+
+**`npm run dev` do back-end não sobe a API no Windows.** O script junta dois comandos com `&`, que no `cmd.exe` roda um depois do outro, e o primeiro (`tsc --watch`) não termina nunca. Use `npm run build` e `npm start`, como em [Como rodar](#como-rodar), ou rode cada comando num terminal: `npx tsc -p tsconfig.build.json --watch` e `node --watch dist/main.js`.
+
 ## Estrutura de pastas
 
 ```
