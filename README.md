@@ -176,6 +176,112 @@ flowchart LR
 - **Cookie de sessão:** o login também grava um cookie `HttpOnly` com um token de uso único, que o banco guarda só como hash SHA-256 (`tbl_010_sessoes`). Quando o JWT vence, o site chama `POST /api/auth/renovar`, recebe um JWT novo e um cookie novo e repete a chamada uma vez.
 - **Banco:** todo acesso passa pelo Prisma. Sem `BANCO` no `.env`, a API usa um SQLite descartável, aplica as migrations e grava os dados de demonstração ao subir.
 
+## Modelo de dados
+
+Gerado a partir de [`backend/prisma/schema.prisma`](backend/prisma/schema.prisma), com os nomes físicos das tabelas e das colunas:
+
+```mermaid
+erDiagram
+  tbl_002_perfis ||--o{ tbl_001_usuarios : "perfil_id"
+  tbl_002_perfis ||--o{ tbl_004_perfis_funcionalidades : "perfil_id"
+  tbl_003_funcionalidades ||--o{ tbl_004_perfis_funcionalidades : "funcionalidade_id"
+  tbl_001_usuarios |o--o{ tbl_005_pecas : "dono_id"
+  tbl_005_pecas ||--o| tbl_006_sacola_itens : "peca_id"
+  tbl_001_usuarios ||--o{ tbl_006_sacola_itens : "usuario_id"
+  tbl_001_usuarios ||--o{ tbl_007_pedidos : "usuario_id"
+  tbl_007_pedidos ||--o{ tbl_008_pedidos_itens : "pedido_id"
+  tbl_005_pecas |o--o{ tbl_008_pedidos_itens : "peca_id"
+  tbl_001_usuarios |o--o{ tbl_008_pedidos_itens : "dono_id"
+  tbl_007_pedidos ||--o{ tbl_009_pedidos_eventos : "pedido_id"
+  tbl_001_usuarios ||--o{ tbl_010_sessoes : "usuario_id"
+
+  tbl_001_usuarios {
+    Int id PK
+    String nome
+    String email UK
+    String senha_hash
+    Int perfil_id FK
+    Boolean ativo
+    DateTime criado_em
+  }
+  tbl_002_perfis {
+    Int id PK
+    String nome UK
+    String descricao
+  }
+  tbl_003_funcionalidades {
+    Int id PK
+    String chave UK
+    String nome
+    String descricao
+  }
+  tbl_004_perfis_funcionalidades {
+    Int perfil_id PK, FK
+    Int funcionalidade_id PK, FK
+  }
+  tbl_005_pecas {
+    Int id PK
+    String titulo
+    String marca
+    String tamanho
+    String categoria
+    String conservacao
+    Float preco
+    Int voltas
+    String foto
+    String situacao
+    Int dono_id FK
+    String motivo
+  }
+  tbl_006_sacola_itens {
+    Int peca_id PK, FK
+    Int usuario_id FK
+    DateTime reservada_ate
+  }
+  tbl_007_pedidos {
+    Int id PK
+    Int usuario_id FK
+    Float total
+    String situacao
+    String pix
+    String rastreio
+    Int pontos
+    Float agua
+    Float co2
+    DateTime expira_em
+    DateTime criado_em
+  }
+  tbl_008_pedidos_itens {
+    Int id PK
+    Int pedido_id FK
+    Int peca_id FK
+    String titulo
+    String categoria
+    Float preco
+    Int dono_id FK
+    Float repasse
+  }
+  tbl_009_pedidos_eventos {
+    Int id PK
+    Int pedido_id FK
+    String etapa
+    DateTime quando
+  }
+  tbl_010_sessoes {
+    Int id PK
+    Int usuario_id FK
+    String token_hash UK
+    DateTime expira_em
+    DateTime criada_em
+  }
+```
+
+- **Acesso:** cada usuário tem um perfil, e a `tbl_004_perfis_funcionalidades` liga cada perfil às funcionalidades dele.
+- **Peça na sacola:** a `peca_id` é a chave da `tbl_006_sacola_itens`, então uma peça cabe em uma sacola só por vez.
+- **Peça de consignação:** a `dono_id` da peça fica vazia quando a peça é do acervo do brechó.
+- **Item do pedido:** guarda uma cópia do título, da categoria e do preço, para o pedido não mudar se a peça for editada depois.
+- **Exclusões, pelas regras das chaves estrangeiras:** apagar um usuário apaga a sacola, os pedidos e as sessões dele; nas peças e nos itens de pedido, a `dono_id` fica vazia. Um perfil com usuários não pode ser apagado, nem uma funcionalidade que algum perfil usa.
+
 ## Como rodar
 
 Precisa do Git e do Node 22.13 ou mais novo.
