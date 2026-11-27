@@ -40,6 +40,21 @@ Projeto da disciplina de Desenvolvimento Web do CEUB, feito em grupo por:
 
 Repositório original: [lucasamarale/ceub_projeto_seminario_web_2026-1](https://github.com/lucasamarale/ceub_projeto_seminario_web_2026-1). Cópia publicada com a autorização do grupo, com o histórico de commits completo e a autoria original de cada um.
 
+## Sumário
+
+1. [Demonstração](#demonstração)
+2. [O que ele faz](#o-que-ele-faz)
+3. [Padrão de back-end pedido em aula](#padrão-de-back-end-pedido-em-aula)
+4. [Stack](#stack)
+5. [Arquitetura](#arquitetura)
+6. [Modelo de dados](#modelo-de-dados)
+7. [Rotas da API](#rotas-da-api)
+8. [Como rodar](#como-rodar)
+9. [Testes e qualidade](#testes-e-qualidade)
+10. [Solução de problemas](#solução-de-problemas)
+11. [Estrutura de pastas](#estrutura-de-pastas)
+12. [English summary](#english-summary)
+
 ## Demonstração
 
 <p align="center">
